@@ -4,7 +4,7 @@
  * @param {*} canvas 
  * @param {*} image 
  */
-function drawImg2Canvas(canvas,image){
+export function drawImg2Canvas(canvas,image){
     const {width, height} = image;
     canvas.width = width;
     canvas.height = height;

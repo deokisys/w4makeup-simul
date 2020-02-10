@@ -1,1 +1,2 @@
 import "./blazeface"
+import "./faceapi"
