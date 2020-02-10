@@ -45,3 +45,14 @@ export function drawEyes(canvas,...positions){
     drawEye(canvas,positions[0],positions[1])
     drawEye(canvas,positions[2],positions[3])
 }
+
+export function drawDot(canvas,...position){
+    const ctx = canvas.getContext('2d');
+    ctx.globalAlpha = 0.2;
+    ctx.fillStyle="red"
+    let x=position[0]-10;
+    let y=position[1]-10;
+    let width=20
+    let height=20
+    ctx.fillRect(x,y,width,height);
+}

@@ -1,5 +1,5 @@
 import * as blazeface from '@tensorflow-models/blazeface';
-import {drawFacearea,drawEyes} from '../util/draw.js';
+import {drawFacearea,drawEyes,drawDot} from '../util/draw.js';
 
 async function main() {
     // Load the model.
@@ -39,7 +39,12 @@ async function main() {
             const end = predictions[i].bottomRight;
             const size = [end[0] - start[0], end[1] - start[1]];
             drawFacearea(canvas,img,start[0], start[1], size[0], size[1])
+            console.log(landmarks);
             drawEyes(canvas,...landmarks[0],...landmarks[1])
+            drawDot(canvas,...landmarks[2])//코
+            drawDot(canvas,...landmarks[3])//입
+            drawDot(canvas,...landmarks[4])//귀(왼)
+            drawDot(canvas,...landmarks[5])//귀(오른쪽)
         }
     }
 }

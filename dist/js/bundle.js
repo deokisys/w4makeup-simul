@@ -13260,7 +13260,12 @@ async function main() {
             const end = predictions[i].bottomRight;
             const size = [end[0] - start[0], end[1] - start[1]];
             Object(_util_draw_js__WEBPACK_IMPORTED_MODULE_1__["drawFacearea"])(canvas,img,start[0], start[1], size[0], size[1])
+            console.log(landmarks);
             Object(_util_draw_js__WEBPACK_IMPORTED_MODULE_1__["drawEyes"])(canvas,...landmarks[0],...landmarks[1])
+            Object(_util_draw_js__WEBPACK_IMPORTED_MODULE_1__["drawDot"])(canvas,...landmarks[2])//코
+            Object(_util_draw_js__WEBPACK_IMPORTED_MODULE_1__["drawDot"])(canvas,...landmarks[3])//입
+            Object(_util_draw_js__WEBPACK_IMPORTED_MODULE_1__["drawDot"])(canvas,...landmarks[4])//귀(왼)
+            Object(_util_draw_js__WEBPACK_IMPORTED_MODULE_1__["drawDot"])(canvas,...landmarks[5])//귀(오른쪽)
         }
     }
 }
@@ -13288,13 +13293,14 @@ __webpack_require__.r(__webpack_exports__);
 /*!**************************!*\
   !*** ./src/util/draw.js ***!
   \**************************/
-/*! exports provided: drawFacearea, drawEyes */
+/*! exports provided: drawFacearea, drawEyes, drawDot */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "drawFacearea", function() { return drawFacearea; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "drawEyes", function() { return drawEyes; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "drawDot", function() { return drawDot; });
 /**
  * 이미지를 canvas에 옮겨 칠하기
  * 
@@ -13341,6 +13347,17 @@ function drawEyes(canvas,...positions){
     // drawImg2Canvas(canvas,image);
     drawEye(canvas,positions[0],positions[1])
     drawEye(canvas,positions[2],positions[3])
+}
+
+function drawDot(canvas,...position){
+    const ctx = canvas.getContext('2d');
+    ctx.globalAlpha = 0.2;
+    ctx.fillStyle="red"
+    let x=position[0]-10;
+    let y=position[1]-10;
+    let width=20
+    let height=20
+    ctx.fillRect(x,y,width,height);
 }
 
 /***/ }),
