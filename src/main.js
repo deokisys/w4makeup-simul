@@ -1,2 +1,2 @@
-import "./blazeface"
-import "./faceapi"
+// import "./blazeface"
+import  "./faceapi"
