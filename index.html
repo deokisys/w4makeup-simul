@@ -16,12 +16,20 @@
     <!-- <img id='image' src='https://image.fmkorea.com/files/attach/new/20180312/486616/73972/976883040/71c8d4b3c51b611814ba0a660d9a5e78.jpg' crossorigin="anonymous"/> -->
     <img id='image' src='https://image.fmkorea.com/files/attach/new/20190114/486616/1384525028/1522271421/d990c42c90b8f2e83476c53418461750.jpg' crossorigin="anonymous"/>
 
-    
-    <canvas id="canvas">
-    </canvas>
     <canvas id="canvas2">
     </canvas>
+    <canvas id="output">
+    </canvas>
+    <div class="makeup">
+        <div class="libs">
+            입술:
+            <!-- <input class="jscolor {hash:true}" value="ffcc00" type="text" placeholder="입술색 지정"> -->
+            <input type="text" placeholder="입술색 지정"> 
+            <button class="libsMakeButton">확인</button>
+        </div>
+    </div>
     <script src="./dist/js/bundle.js"></script>
+    <script src="./src/util/jscolor.js"></script>
 </body>
 
 </html>

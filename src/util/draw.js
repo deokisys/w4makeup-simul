@@ -56,3 +56,32 @@ export function drawDot(canvas,...position){
     let height=20
     ctx.fillRect(x,y,width,height);
 }
+export function drawLip(canvas,color="red",positions){
+    const ctx = canvas.getContext('2d');
+    let topLip=[0,1,2,3,4,5,6,13,14,15];
+    let bottomLip=[7,8,9,10,11,12,19,18,17,16];
+
+    ctx.fillStyle=color
+
+    ctx.beginPath();
+    topLip.map((ele,i)=>{
+        if(i===0){
+            ctx.moveTo(positions[ele].x, positions[ele].y);
+            return;
+        } 
+        ctx.lineTo(positions[ele].x, positions[ele].y);
+    })
+    ctx.fill();
+
+    ctx.beginPath();
+    bottomLip.map((ele,i)=>{
+        if(i===0){
+            ctx.moveTo(positions[ele].x, positions[ele].y);
+            return;
+        } 
+        ctx.lineTo(positions[ele].x, positions[ele].y);
+    })
+
+    ctx.fill();
+    return ctx;
+}

@@ -1,6 +1,9 @@
 # 얼굴 화장 UI
 `얼굴을 인식후, 화장 시뮬레이션을 구현합니다.`
 
+# 정리
+- [위키](https://oss.navercorp.com/s-junbae/intern-face/wiki)
+
 # 진행
 1. 얼굴인식 모델을 이용하여 얼굴 포인트 인식
     - blazeface
@@ -27,4 +30,11 @@
     - https://github.com/justadudewhohacks/face-recognition.js
     - https://github.com/justadudewhohacks/face-api.js
     - https://github.com/tensorflow/tfjs-models/tree/master/blazeface
-
+- 자동화장(DMT)
+    - https://github.com/Honlan/DMT
+    - https://arxiv.org/abs/1907.01144
+    - https://www.semion.io/doc/disentangled-makeup-transfer-with-generative-adversarial-network
+- 자동채색(pix2pix)
+    - https://phillipi.github.io/pix2pix/
+- 유저가이드 채색
+    - https://richzhang.github.io/ideepcolor/
