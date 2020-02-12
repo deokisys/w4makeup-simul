@@ -23462,7 +23462,7 @@ module.exports = g;
 __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _util_draw_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../util/draw.js */ "./src/util/draw.js");
 /* harmony import */ var face_api_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! face-api.js */ "./node_modules/face-api.js/build/es6/index.js");
-/* harmony import */ var _makeup_lips__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./makeup/lips */ "./src/faceapi/makeup/lips.js");
+/* harmony import */ var _makeup_lips__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./makeup/lips */ "./src/faceapi/makeup/lips.js");
 /* harmony import */ var _makeup_blusher__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./makeup/blusher */ "./src/faceapi/makeup/blusher.js");
 /* harmony import */ var _makeup_full__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./makeup/full */ "./src/faceapi/makeup/full.js");
 
@@ -23471,15 +23471,15 @@ __webpack_require__.r(__webpack_exports__);
 
 
 
-
-
-Promise.all([
-    face_api_js__WEBPACK_IMPORTED_MODULE_1__["nets"].faceLandmark68Net.loadFromUri('/models'),//랜드마크를 찾는 모델
-    face_api_js__WEBPACK_IMPORTED_MODULE_1__["nets"].tinyFaceDetector.loadFromUri('/models')//얼굴인식 기본
-]).then(start)
-
-async function start(){
-    const input = document.getElementById('image')
+let imgUpload = document.querySelector("#myFileUpload");
+imgUpload.onchange=async ()=>{
+    const imgFile = document.getElementById('myFileUpload').files[0]
+    // create an HTMLImageElement from a Blob
+    const img = await face_api_js__WEBPACK_IMPORTED_MODULE_1__["bufferToImage"](imgFile)
+    document.getElementById('myImg').src = img.src
+    
+    //시작
+    const input = document.getElementById('myImg')
     const canvas = document.getElementById('canvas2');//얼굴 특징 출력
     const output = document.getElementById('output');
     const displaySize = {width:input.width,height:input.height}
@@ -23488,7 +23488,7 @@ async function start(){
     //예측
     let landmarks = await predict(input,canvas,displaySize,output);
     //부위별 메이크업 수행
-    let lip = new _makeup_lips__WEBPACK_IMPORTED_MODULE_5__["default"](input,output,landmarks)
+    let lip = new _makeup_lips__WEBPACK_IMPORTED_MODULE_2__["default"](input,output,landmarks)
     let blusher = new _makeup_blusher__WEBPACK_IMPORTED_MODULE_3__["default"](input,output,landmarks)
 
     //적용된 메이크업 모두 수행
@@ -23496,6 +23496,20 @@ async function start(){
     fullmakeButton.addEventListener("click",()=>{
         Object(_makeup_full__WEBPACK_IMPORTED_MODULE_4__["default"])(input,output,landmarks,...lip.getColor(),...blusher.getColor());
     })
+}
+
+Promise.all([
+    face_api_js__WEBPACK_IMPORTED_MODULE_1__["nets"].faceLandmark68Net.loadFromUri('/models'),//랜드마크를 찾는 모델
+    face_api_js__WEBPACK_IMPORTED_MODULE_1__["nets"].tinyFaceDetector.loadFromUri('/models')//얼굴인식 기본
+]).then(start)
+
+async function start(){
+    let uploadModule = document.querySelector("#myFileUpload");
+    let makeupModule = document.querySelector(".makeup");
+    uploadModule.style.display = "block";
+    makeupModule.style.display = "block";
+
+    console.log("loadmodel");
 }
 
 async function predict(input,canvas,displaySize,output){
@@ -23739,7 +23753,7 @@ function drawDot(canvas,...position){
  */
 function drawLip(canvas,color="FF0000",opacity,positions){
     const ctx = canvas.getContext('2d');
-    let topLip=[0,1,2,3,4,5,6,13,14,15];
+    let topLip=[0,1,2,3,4,5,6,15,14,13];
     let bottomLip=[7,8,9,10,11,12,19,18,17,16];
 
     ctx.fillStyle=`rgba(${convertHex2Rgb(color)},${opacity})`

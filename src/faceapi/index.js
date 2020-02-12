@@ -4,15 +4,15 @@ import Lip from './makeup/lips';
 import Blusher from './makeup/blusher';
 import fullmake from './makeup/full';
 
-
-
-Promise.all([
-    faceapi.nets.faceLandmark68Net.loadFromUri('/models'),//랜드마크를 찾는 모델
-    faceapi.nets.tinyFaceDetector.loadFromUri('/models')//얼굴인식 기본
-]).then(start)
-
-async function start(){
-    const input = document.getElementById('image')
+let imgUpload = document.querySelector("#myFileUpload");
+imgUpload.onchange=async ()=>{
+    const imgFile = document.getElementById('myFileUpload').files[0]
+    // create an HTMLImageElement from a Blob
+    const img = await faceapi.bufferToImage(imgFile)
+    document.getElementById('myImg').src = img.src
+    
+    //시작
+    const input = document.getElementById('myImg')
     const canvas = document.getElementById('canvas2');//얼굴 특징 출력
     const output = document.getElementById('output');
     const displaySize = {width:input.width,height:input.height}
@@ -29,6 +29,20 @@ async function start(){
     fullmakeButton.addEventListener("click",()=>{
         fullmake(input,output,landmarks,...lip.getColor(),...blusher.getColor());
     })
+}
+
+Promise.all([
+    faceapi.nets.faceLandmark68Net.loadFromUri('/models'),//랜드마크를 찾는 모델
+    faceapi.nets.tinyFaceDetector.loadFromUri('/models')//얼굴인식 기본
+]).then(start)
+
+async function start(){
+    let uploadModule = document.querySelector("#myFileUpload");
+    let makeupModule = document.querySelector(".makeup");
+    uploadModule.style.display = "block";
+    makeupModule.style.display = "block";
+
+    console.log("loadmodel");
 }
 
 async function predict(input,canvas,displaySize,output){
