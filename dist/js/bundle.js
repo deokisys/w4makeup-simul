@@ -23494,7 +23494,7 @@ async function start(){
     //적용된 메이크업 모두 수행
     let fullmakeButton = document.querySelector(".fullMakeButton")
     fullmakeButton.addEventListener("click",()=>{
-        Object(_makeup_full__WEBPACK_IMPORTED_MODULE_4__["default"])(input,output,landmarks,lib.getColor(),blusher.getColor());
+        Object(_makeup_full__WEBPACK_IMPORTED_MODULE_4__["default"])(input,output,landmarks,...lib.getColor(),...blusher.getColor());
     })
 }
 
@@ -23535,16 +23535,34 @@ __webpack_require__.r(__webpack_exports__);
 class Blusher{
     constructor(input,output,landmarks){
         this.blusherColor="FF0000";
+        this.opacity=1;
+
+        //색 지정
         this.blusherButton = document.querySelector(".blusherMakeButton");
         this.blusherButton.addEventListener("click", function(evt){
             Object(_util_draw_js__WEBPACK_IMPORTED_MODULE_0__["drawImg2Canvas"])(output, input);
             this.blusherColor = evt.target.previousElementSibling.value;
-            Object(_util_draw_js__WEBPACK_IMPORTED_MODULE_0__["drawBlusher"])(output, this.blusherColor, landmarks)
+            Object(_util_draw_js__WEBPACK_IMPORTED_MODULE_0__["drawBlusher"])(output, this.blusherColor,this.opacity, landmarks)
+        }.bind(this))
+
+        //투명도 지정
+        this.blusherOpacityButton = document.querySelector(".blusherOpacity");
+        this.blusherOpacityButton.addEventListener("click", function(evt){
+            if(evt.target.tagName==="BUTTON"){
+                if(evt.target.classList.contains("heavy")){
+                    this.opacity>=1?null:this.opacity+=0.1;
+                }else if(evt.target.classList.contains("light")){
+                    this.opacity<=0?null:this.opacity-=0.1;
+                }
+                Object(_util_draw_js__WEBPACK_IMPORTED_MODULE_0__["drawImg2Canvas"])(output, input);
+                Object(_util_draw_js__WEBPACK_IMPORTED_MODULE_0__["drawBlusher"])(output, this.blusherColor,this.opacity, landmarks)
+            }
+            return;
         }.bind(this))
     }
 
     getColor(){
-        return this.blusherColor;
+        return [this.blusherColor,this.opacity];
     }
 }
 
@@ -23567,8 +23585,8 @@ __webpack_require__.r(__webpack_exports__);
 
 function fullmakeup(input,output,landmarks,...colors){
     Object(_util_draw_js__WEBPACK_IMPORTED_MODULE_0__["drawImg2Canvas"])(output, input);
-    Object(_util_draw_js__WEBPACK_IMPORTED_MODULE_0__["drawLip"])(output, colors[0], landmarks.slice(48, 68))
-    Object(_util_draw_js__WEBPACK_IMPORTED_MODULE_0__["drawBlusher"])(output, colors[1], landmarks)
+    Object(_util_draw_js__WEBPACK_IMPORTED_MODULE_0__["drawLip"])(output, colors[0],colors[1], landmarks.slice(48, 68))
+    Object(_util_draw_js__WEBPACK_IMPORTED_MODULE_0__["drawBlusher"])(output, colors[2],colors[3], landmarks)
 }
 
 /***/ }),
@@ -23589,17 +23607,35 @@ __webpack_require__.r(__webpack_exports__);
 class Lib{
     constructor(input,output,landmarks){
         this.libColor="FF0000";
+        this.opacity=1;
         this.lipPositions = landmarks.slice(48, 68);
+        
+        //색 지정
         this.libsButton = document.querySelector(".libsMakeButton");
         this.libsButton.addEventListener("click", function(evt){
             Object(_util_draw_js__WEBPACK_IMPORTED_MODULE_0__["drawImg2Canvas"])(output, input);
             this.libColor=evt.target.previousElementSibling.value
-            Object(_util_draw_js__WEBPACK_IMPORTED_MODULE_0__["drawLip"])(output, this.libColor, this.lipPositions)
+            Object(_util_draw_js__WEBPACK_IMPORTED_MODULE_0__["drawLip"])(output, this.libColor,this.opacity, this.lipPositions)
+        }.bind(this))
+
+        //투명도 지정
+        this.libsOpacityButton = document.querySelector(".libsOpacity");
+        this.libsOpacityButton.addEventListener("click", function(evt){
+            if(evt.target.tagName==="BUTTON"){
+                if(evt.target.classList.contains("heavy")){
+                    this.opacity>=1?null:this.opacity+=0.1;
+                }else if(evt.target.classList.contains("light")){
+                    this.opacity<=0?null:this.opacity-=0.1;
+                }
+                Object(_util_draw_js__WEBPACK_IMPORTED_MODULE_0__["drawImg2Canvas"])(output, input);
+                Object(_util_draw_js__WEBPACK_IMPORTED_MODULE_0__["drawLip"])(output, this.libColor,this.opacity, this.lipPositions)
+            }
+            return;
         }.bind(this))
     }
 
     getColor(){
-        return this.libColor;
+        return [this.libColor,this.opacity];
     }
 }
 
@@ -23701,12 +23737,12 @@ function drawDot(canvas,...position){
  * @param {*} color 
  * @param {*} positions 
  */
-function drawLip(canvas,color="FF0000",positions){
+function drawLip(canvas,color="FF0000",opacity,positions){
     const ctx = canvas.getContext('2d');
     let topLip=[0,1,2,3,4,5,6,13,14,15];
     let bottomLip=[7,8,9,10,11,12,19,18,17,16];
 
-    ctx.fillStyle=`rgb(${convertHex2Rgb(color)})`
+    ctx.fillStyle=`rgba(${convertHex2Rgb(color)},${opacity})`
 
     ctx.beginPath();
     topLip.map((ele,i)=>{
@@ -23736,7 +23772,7 @@ function drawLip(canvas,color="FF0000",positions){
  * @param {*} color 
  * @param {*} positions 
  */
-function drawBlusher(canvas,color="FF0000",positions){
+function drawBlusher(canvas,color="FF0000",opacity,positions){
     const ctx = canvas.getContext('2d');
     let rightX=0;
     let rightY=0;
@@ -23760,7 +23796,7 @@ function drawBlusher(canvas,color="FF0000",positions){
     ctx.arc(rightX, rightY, rightRadius, 0, 2 * Math.PI, false);
     //색
     let grdRight = ctx.createRadialGradient(rightX, rightY, rightRadius/6, rightX,rightY,rightRadius);
-    grdRight.addColorStop(0, `rgb(${rgbcolor})`);
+    grdRight.addColorStop(0, `rgb(${rgbcolor},${opacity})`);
     grdRight.addColorStop(1, `rgba(${rgbcolor},0)`);
 
     ctx.fillStyle=grdRight;
@@ -23782,7 +23818,7 @@ function drawBlusher(canvas,color="FF0000",positions){
     leftRadius=( leftX-positions[3].x)*0.8
     ctx.arc(leftX, leftY, leftRadius, 0, 2 * Math.PI, false);
     let grdLeft = ctx.createRadialGradient(leftX, leftY, leftRadius/6, leftX,leftY,leftRadius);
-    grdLeft.addColorStop(0, `rgb(${rgbcolor})`);
+    grdLeft.addColorStop(0, `rgb(${rgbcolor},${opacity})`);
     grdLeft.addColorStop(1, `rgba(${rgbcolor},0)`);
 
     ctx.fillStyle=grdLeft;

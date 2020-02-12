@@ -62,12 +62,12 @@ export function drawDot(canvas,...position){
  * @param {*} color 
  * @param {*} positions 
  */
-export function drawLip(canvas,color="FF0000",positions){
+export function drawLip(canvas,color="FF0000",opacity,positions){
     const ctx = canvas.getContext('2d');
     let topLip=[0,1,2,3,4,5,6,13,14,15];
     let bottomLip=[7,8,9,10,11,12,19,18,17,16];
 
-    ctx.fillStyle=`rgb(${convertHex2Rgb(color)})`
+    ctx.fillStyle=`rgba(${convertHex2Rgb(color)},${opacity})`
 
     ctx.beginPath();
     topLip.map((ele,i)=>{
@@ -97,7 +97,7 @@ export function drawLip(canvas,color="FF0000",positions){
  * @param {*} color 
  * @param {*} positions 
  */
-export function drawBlusher(canvas,color="FF0000",positions){
+export function drawBlusher(canvas,color="FF0000",opacity,positions){
     const ctx = canvas.getContext('2d');
     let rightX=0;
     let rightY=0;
@@ -121,7 +121,7 @@ export function drawBlusher(canvas,color="FF0000",positions){
     ctx.arc(rightX, rightY, rightRadius, 0, 2 * Math.PI, false);
     //색
     let grdRight = ctx.createRadialGradient(rightX, rightY, rightRadius/6, rightX,rightY,rightRadius);
-    grdRight.addColorStop(0, `rgb(${rgbcolor})`);
+    grdRight.addColorStop(0, `rgb(${rgbcolor},${opacity})`);
     grdRight.addColorStop(1, `rgba(${rgbcolor},0)`);
 
     ctx.fillStyle=grdRight;
@@ -143,7 +143,7 @@ export function drawBlusher(canvas,color="FF0000",positions){
     leftRadius=( leftX-positions[3].x)*0.8
     ctx.arc(leftX, leftY, leftRadius, 0, 2 * Math.PI, false);
     let grdLeft = ctx.createRadialGradient(leftX, leftY, leftRadius/6, leftX,leftY,leftRadius);
-    grdLeft.addColorStop(0, `rgb(${rgbcolor})`);
+    grdLeft.addColorStop(0, `rgb(${rgbcolor},${opacity})`);
     grdLeft.addColorStop(1, `rgba(${rgbcolor},0)`);
 
     ctx.fillStyle=grdLeft;

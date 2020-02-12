@@ -27,7 +27,7 @@ async function start(){
     //적용된 메이크업 모두 수행
     let fullmakeButton = document.querySelector(".fullMakeButton")
     fullmakeButton.addEventListener("click",()=>{
-        fullmake(input,output,landmarks,lib.getColor(),blusher.getColor());
+        fullmake(input,output,landmarks,...lib.getColor(),...blusher.getColor());
     })
 }
 
