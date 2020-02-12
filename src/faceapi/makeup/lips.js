@@ -1,22 +1,22 @@
 import { drawImg2Canvas, drawLip } from '../../util/draw.js';
 
-export default class Lib{
+export default class Lip{
     constructor(input,output,landmarks){
-        this.libColor="FF0000";
+        this.lipColor="FF0000";
         this.opacity=1;
         this.lipPositions = landmarks.slice(48, 68);
         
         //색 지정
-        this.libsButton = document.querySelector(".libsMakeButton");
-        this.libsButton.addEventListener("click", function(evt){
+        this.lipsButton = document.querySelector(".lipsMakeButton");
+        this.lipsButton.addEventListener("click", function(evt){
             drawImg2Canvas(output, input);
-            this.libColor=evt.target.previousElementSibling.value
-            drawLip(output, this.libColor,this.opacity, this.lipPositions)
+            this.lipColor=evt.target.previousElementSibling.value
+            drawLip(output, this.lipColor,this.opacity, this.lipPositions)
         }.bind(this))
 
         //투명도 지정
-        this.libsOpacityButton = document.querySelector(".libsOpacity");
-        this.libsOpacityButton.addEventListener("click", function(evt){
+        this.lipsOpacityButton = document.querySelector(".lipsOpacity");
+        this.lipsOpacityButton.addEventListener("click", function(evt){
             if(evt.target.tagName==="BUTTON"){
                 if(evt.target.classList.contains("heavy")){
                     this.opacity>=1?null:this.opacity+=0.1;
@@ -24,13 +24,13 @@ export default class Lib{
                     this.opacity<=0?null:this.opacity-=0.1;
                 }
                 drawImg2Canvas(output, input);
-                drawLip(output, this.libColor,this.opacity, this.lipPositions)
+                drawLip(output, this.lipColor,this.opacity, this.lipPositions)
             }
             return;
         }.bind(this))
     }
 
     getColor(){
-        return [this.libColor,this.opacity];
+        return [this.lipColor,this.opacity];
     }
 }

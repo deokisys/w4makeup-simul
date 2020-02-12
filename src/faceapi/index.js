@@ -1,6 +1,6 @@
 import {drawImg2Canvas} from '../util/draw.js';
 import * as faceapi from 'face-api.js';
-import Lib from './makeup/libs';
+import Lip from './makeup/lips';
 import Blusher from './makeup/blusher';
 import fullmake from './makeup/full';
 
@@ -21,13 +21,13 @@ async function start(){
     //예측
     let landmarks = await predict(input,canvas,displaySize,output);
     //부위별 메이크업 수행
-    let lib = new Lib(input,output,landmarks)
+    let lip = new Lip(input,output,landmarks)
     let blusher = new Blusher(input,output,landmarks)
 
     //적용된 메이크업 모두 수행
     let fullmakeButton = document.querySelector(".fullMakeButton")
     fullmakeButton.addEventListener("click",()=>{
-        fullmake(input,output,landmarks,...lib.getColor(),...blusher.getColor());
+        fullmake(input,output,landmarks,...lip.getColor(),...blusher.getColor());
     })
 }
 
