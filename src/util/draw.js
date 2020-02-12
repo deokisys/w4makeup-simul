@@ -64,7 +64,7 @@ export function drawDot(canvas,...position){
  */
 export function drawLip(canvas,color="FF0000",opacity,positions){
     const ctx = canvas.getContext('2d');
-    let topLip=[0,1,2,3,4,5,6,13,14,15];
+    let topLip=[0,1,2,3,4,5,6,15,14,13];
     let bottomLip=[7,8,9,10,11,12,19,18,17,16];
 
     ctx.fillStyle=`rgba(${convertHex2Rgb(color)},${opacity})`
