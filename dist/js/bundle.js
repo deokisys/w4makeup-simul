@@ -23462,7 +23462,7 @@ module.exports = g;
 __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _util_draw_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../util/draw.js */ "./src/util/draw.js");
 /* harmony import */ var face_api_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! face-api.js */ "./node_modules/face-api.js/build/es6/index.js");
-/* harmony import */ var _makeup_lips__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./makeup/lips */ "./src/faceapi/makeup/lips.js");
+/* harmony import */ var _makeup_lips__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./makeup/lips */ "./src/faceapi/makeup/lips.js");
 /* harmony import */ var _makeup_blusher__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./makeup/blusher */ "./src/faceapi/makeup/blusher.js");
 /* harmony import */ var _makeup_full__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./makeup/full */ "./src/faceapi/makeup/full.js");
 
@@ -23471,7 +23471,15 @@ __webpack_require__.r(__webpack_exports__);
 
 
 
-
+//video
+const video = document.querySelector("#video")
+function startVideo(){
+    navigator.getUserMedia(
+        {video:{}},
+        stream => video.srcObject = stream,
+        err=>console.err(err)
+    )
+}
 
 Promise.all([
     face_api_js__WEBPACK_IMPORTED_MODULE_1__["nets"].faceLandmark68Net.loadFromUri('/models'),//랜드마크를 찾는 모델
@@ -23488,13 +23496,31 @@ async function start(){
     //예측
     let landmarks = await predict(input,canvas,displaySize,output);
     //부위별 메이크업 수행
-    let lip = new _makeup_lips__WEBPACK_IMPORTED_MODULE_5__["default"](input,output,landmarks)
+    let lip = new _makeup_lips__WEBPACK_IMPORTED_MODULE_2__["default"](input,output,landmarks)
     let blusher = new _makeup_blusher__WEBPACK_IMPORTED_MODULE_3__["default"](input,output,landmarks)
 
     //적용된 메이크업 모두 수행
     let fullmakeButton = document.querySelector(".fullMakeButton")
     fullmakeButton.addEventListener("click",()=>{
         Object(_makeup_full__WEBPACK_IMPORTED_MODULE_4__["default"])(input,output,landmarks,...lip.getColor(),...blusher.getColor());
+    })
+
+    //video
+    startVideo();
+    video.addEventListener("play",()=>{
+        let canvasVideo = document.getElementById("videoOut");
+        const videoDisplaySize = {width:video.offsetWidth,height:video.offsetHeight}
+        face_api_js__WEBPACK_IMPORTED_MODULE_1__["matchDimensions"](canvasVideo,videoDisplaySize)
+        setInterval(async()=>{
+            let detectionVideo = await face_api_js__WEBPACK_IMPORTED_MODULE_1__["detectAllFaces"](video,new face_api_js__WEBPACK_IMPORTED_MODULE_1__["TinyFaceDetectorOptions"]())
+            .withFaceLandmarks()
+            const resizeVideoDetections = face_api_js__WEBPACK_IMPORTED_MODULE_1__["resizeResults"](detectionVideo,videoDisplaySize)
+            canvasVideo.getContext('2d').clearRect(0,0,canvasVideo.width,canvasVideo.height)
+            face_api_js__WEBPACK_IMPORTED_MODULE_1__["draw"].drawFaceLandmarks(canvasVideo,resizeVideoDetections)
+            console.log(video)
+            let lipV = new _makeup_lips__WEBPACK_IMPORTED_MODULE_2__["default"](video,canvasVideo,landmarks)
+            let blusherV = new _makeup_blusher__WEBPACK_IMPORTED_MODULE_3__["default"](video,canvasVideo,landmarks)
+        },100)
     })
 }
 

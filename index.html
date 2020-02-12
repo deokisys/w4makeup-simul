@@ -10,6 +10,21 @@
     <!-- blazeface api -->
     <!-- <script src="https://cdn.jsdelivr.net/npm/@tensorflow-models/blazeface"></script> -->
     <title>face</title>
+    <style>
+    body{
+        position:relative;
+    }
+    .videoArea{
+        position:relative;
+
+    }
+    #video {
+      position: absolute;
+    }
+    #videoOut {
+      position: absolute;
+    }
+    </style>
 </head>
 <body>
     <!-- <img id='image' src='https://img.allurekorea.com/allure/2017/04/style_58ff2afd89457-e1493117714656.jpg' crossorigin="anonymous"/> -->
@@ -43,6 +58,10 @@
             <button class="fullMakeButton">같이 보기
             </button>
         </div>
+    </div>
+    <div class="videoArea">
+        <video id="video" width="720" height="560" autoplay muted></video>
+        <canvas id="videoOut"> </canvas>
     </div>
     <script src="./dist/js/bundle.js"></script>
     <script src="./src/util/jscolor.js"></script>

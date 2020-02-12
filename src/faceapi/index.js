@@ -4,7 +4,15 @@ import Lip from './makeup/lips';
 import Blusher from './makeup/blusher';
 import fullmake from './makeup/full';
 
-
+//video
+const video = document.querySelector("#video")
+function startVideo(){
+    navigator.getUserMedia(
+        {video:{}},
+        stream => video.srcObject = stream,
+        err=>console.err(err)
+    )
+}
 
 Promise.all([
     faceapi.nets.faceLandmark68Net.loadFromUri('/models'),//랜드마크를 찾는 모델
@@ -28,6 +36,24 @@ async function start(){
     let fullmakeButton = document.querySelector(".fullMakeButton")
     fullmakeButton.addEventListener("click",()=>{
         fullmake(input,output,landmarks,...lip.getColor(),...blusher.getColor());
+    })
+
+    //video
+    startVideo();
+    video.addEventListener("play",()=>{
+        let canvasVideo = document.getElementById("videoOut");
+        const videoDisplaySize = {width:video.offsetWidth,height:video.offsetHeight}
+        faceapi.matchDimensions(canvasVideo,videoDisplaySize)
+        setInterval(async()=>{
+            let detectionVideo = await faceapi.detectAllFaces(video,new faceapi.TinyFaceDetectorOptions())
+            .withFaceLandmarks()
+            const resizeVideoDetections = faceapi.resizeResults(detectionVideo,videoDisplaySize)
+            canvasVideo.getContext('2d').clearRect(0,0,canvasVideo.width,canvasVideo.height)
+            faceapi.draw.drawFaceLandmarks(canvasVideo,resizeVideoDetections)
+            console.log(video)
+            let lipV = new Lip(video,canvasVideo,landmarks)
+            let blusherV = new Blusher(video,canvasVideo,landmarks)
+        },100)
     })
 }
 
