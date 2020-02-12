@@ -23462,6 +23462,14 @@ module.exports = g;
 __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _util_draw_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../util/draw.js */ "./src/util/draw.js");
 /* harmony import */ var face_api_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! face-api.js */ "./node_modules/face-api.js/build/es6/index.js");
+/* harmony import */ var _makeup_libs__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./makeup/libs */ "./src/faceapi/makeup/libs.js");
+/* harmony import */ var _makeup_blusher__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./makeup/blusher */ "./src/faceapi/makeup/blusher.js");
+/* harmony import */ var _makeup_full__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./makeup/full */ "./src/faceapi/makeup/full.js");
+
+
+
+
+
 
 
 
@@ -23472,19 +23480,21 @@ Promise.all([
 
 async function start(){
     const input = document.getElementById('image')
-    const canvas = document.getElementById('canvas2');
+    const canvas = document.getElementById('canvas2');//얼굴 특징 출력
     const output = document.getElementById('output');
     const displaySize = {width:input.width,height:input.height}
     face_api_js__WEBPACK_IMPORTED_MODULE_1__["matchDimensions"](canvas, displaySize)
     face_api_js__WEBPACK_IMPORTED_MODULE_1__["matchDimensions"](output, displaySize)
+    //예측
     let landmarks = await predict(input,canvas,displaySize,output);
-    let makeupLibs = libsSet(output,landmarks.slice(48,68))
-    Object(_util_draw_js__WEBPACK_IMPORTED_MODULE_0__["drawLip"])(output,"red",landmarks.slice(48,68))
+    //부위별 메이크업 수행
+    let lib = new _makeup_libs__WEBPACK_IMPORTED_MODULE_2__["default"](input,output,landmarks)
+    let blusher = new _makeup_blusher__WEBPACK_IMPORTED_MODULE_3__["default"](input,output,landmarks)
 
-    let libsButton = document.querySelector(".libsMakeButton");
-    libsButton.addEventListener("click",(evt)=>{
-        Object(_util_draw_js__WEBPACK_IMPORTED_MODULE_0__["drawImg2Canvas"])(output,input);
-        makeupLibs(evt.target.previousElementSibling.value)
+    //적용된 메이크업 모두 수행
+    let fullmakeButton = document.querySelector(".fullMakeButton")
+    fullmakeButton.addEventListener("click",()=>{
+        Object(_makeup_full__WEBPACK_IMPORTED_MODULE_4__["default"])(input,output,landmarks,lib.getColor(),blusher.getColor());
     })
 }
 
@@ -23504,11 +23514,93 @@ async function predict(input,canvas,displaySize,output){
     //48-67 입
     return resizeDetections[0].landmarks.positions
 }
-//색을 제외하고 나머지 출력될 canvas와 위치를 입력한다.
-function libsSet(output,lipPositions){
-    return  (color)=>{
-        Object(_util_draw_js__WEBPACK_IMPORTED_MODULE_0__["drawLip"])(output,color,lipPositions)
-    };
+
+
+
+/***/ }),
+
+/***/ "./src/faceapi/makeup/blusher.js":
+/*!***************************************!*\
+  !*** ./src/faceapi/makeup/blusher.js ***!
+  \***************************************/
+/*! exports provided: default */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "default", function() { return Blusher; });
+/* harmony import */ var _util_draw_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../../util/draw.js */ "./src/util/draw.js");
+
+
+class Blusher{
+    constructor(input,output,landmarks){
+        this.blusherColor="FF0000";
+        this.blusherButton = document.querySelector(".blusherMakeButton");
+        this.blusherButton.addEventListener("click", function(evt){
+            Object(_util_draw_js__WEBPACK_IMPORTED_MODULE_0__["drawImg2Canvas"])(output, input);
+            this.blusherColor = evt.target.previousElementSibling.value;
+            Object(_util_draw_js__WEBPACK_IMPORTED_MODULE_0__["drawBlusher"])(output, this.blusherColor, landmarks)
+        }.bind(this))
+    }
+
+    getColor(){
+        return this.blusherColor;
+    }
+}
+
+
+
+/***/ }),
+
+/***/ "./src/faceapi/makeup/full.js":
+/*!************************************!*\
+  !*** ./src/faceapi/makeup/full.js ***!
+  \************************************/
+/*! exports provided: default */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "default", function() { return fullmakeup; });
+/* harmony import */ var _util_draw_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../../util/draw.js */ "./src/util/draw.js");
+
+
+function fullmakeup(input,output,landmarks,...colors){
+    Object(_util_draw_js__WEBPACK_IMPORTED_MODULE_0__["drawImg2Canvas"])(output, input);
+    Object(_util_draw_js__WEBPACK_IMPORTED_MODULE_0__["drawLip"])(output, colors[0], landmarks.slice(48, 68))
+    Object(_util_draw_js__WEBPACK_IMPORTED_MODULE_0__["drawBlusher"])(output, colors[1], landmarks)
+}
+
+/***/ }),
+
+/***/ "./src/faceapi/makeup/libs.js":
+/*!************************************!*\
+  !*** ./src/faceapi/makeup/libs.js ***!
+  \************************************/
+/*! exports provided: default */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "default", function() { return Lib; });
+/* harmony import */ var _util_draw_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../../util/draw.js */ "./src/util/draw.js");
+
+
+class Lib{
+    constructor(input,output,landmarks){
+        this.libColor="FF0000";
+        this.lipPositions = landmarks.slice(48, 68);
+        this.libsButton = document.querySelector(".libsMakeButton");
+        this.libsButton.addEventListener("click", function(evt){
+            Object(_util_draw_js__WEBPACK_IMPORTED_MODULE_0__["drawImg2Canvas"])(output, input);
+            this.libColor=evt.target.previousElementSibling.value
+            Object(_util_draw_js__WEBPACK_IMPORTED_MODULE_0__["drawLip"])(output, this.libColor, this.lipPositions)
+        }.bind(this))
+    }
+
+    getColor(){
+        return this.libColor;
+    }
 }
 
 
@@ -23534,7 +23626,7 @@ __webpack_require__.r(__webpack_exports__);
 /*!**************************!*\
   !*** ./src/util/draw.js ***!
   \**************************/
-/*! exports provided: drawImg2Canvas, drawFacearea, drawEyes, drawDot, drawLip */
+/*! exports provided: drawImg2Canvas, drawFacearea, drawEyes, drawDot, drawLip, drawBlusher */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -23544,6 +23636,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "drawEyes", function() { return drawEyes; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "drawDot", function() { return drawDot; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "drawLip", function() { return drawLip; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "drawBlusher", function() { return drawBlusher; });
 /**
  * 이미지를 canvas에 옮겨 칠하기
  * 
@@ -23602,12 +23695,18 @@ function drawDot(canvas,...position){
     let height=20
     ctx.fillRect(x,y,width,height);
 }
-function drawLip(canvas,color="red",positions){
+/**
+ * 입술 그리기
+ * @param {*} canvas 
+ * @param {*} color 
+ * @param {*} positions 
+ */
+function drawLip(canvas,color="FF0000",positions){
     const ctx = canvas.getContext('2d');
     let topLip=[0,1,2,3,4,5,6,13,14,15];
     let bottomLip=[7,8,9,10,11,12,19,18,17,16];
 
-    ctx.fillStyle=color
+    ctx.fillStyle=`rgb(${convertHex2Rgb(color)})`
 
     ctx.beginPath();
     topLip.map((ele,i)=>{
@@ -23630,6 +23729,73 @@ function drawLip(canvas,color="red",positions){
 
     ctx.fill();
     return ctx;
+}
+/**
+ * 브러셔 - 중앙 영역
+ * @param {*} canvas 
+ * @param {*} color 
+ * @param {*} positions 
+ */
+function drawBlusher(canvas,color="FF0000",positions){
+    const ctx = canvas.getContext('2d');
+    let rightX=0;
+    let rightY=0;
+    let rightRadius=0;
+    let leftX=0;
+    let leftY=0;
+    let leftRadius=0;
+    let rgbcolor = convertHex2Rgb(color);
+    //중앙영역
+    //오른쪽
+    ctx.beginPath();
+    //오른쪽 눈 기준
+        //45번 x좌표 
+    rightX=positions[45].x;
+    //오른쪽 턱
+        //y좌표는 13,14번 사이
+    rightY=(positions[13].y+positions[14].y)/2;
+    //크기
+        //x좌표 부터 13번까지의 80%거리를 반지름으로 
+    rightRadius=(positions[13].x - rightX)*0.8
+    ctx.arc(rightX, rightY, rightRadius, 0, 2 * Math.PI, false);
+    //색
+    let grdRight = ctx.createRadialGradient(rightX, rightY, rightRadius/6, rightX,rightY,rightRadius);
+    grdRight.addColorStop(0, `rgb(${rgbcolor})`);
+    grdRight.addColorStop(1, `rgba(${rgbcolor},0)`);
+
+    ctx.fillStyle=grdRight;
+
+    ctx.fill();
+    
+    
+
+    //왼쪽
+    ctx.beginPath();
+    //왼쪽 눈 기준
+        //x좌표 36번
+    leftX=positions[41].x;
+    //왼쪽 볼
+        //y좌표는 2,3번 사이
+    leftY=(positions[2].y+positions[3].y)/2;
+    //크기
+        //x좌표 부터 3번까지의 80%거리를 반지름
+    leftRadius=( leftX-positions[3].x)*0.8
+    ctx.arc(leftX, leftY, leftRadius, 0, 2 * Math.PI, false);
+    let grdLeft = ctx.createRadialGradient(leftX, leftY, leftRadius/6, leftX,leftY,leftRadius);
+    grdLeft.addColorStop(0, `rgb(${rgbcolor})`);
+    grdLeft.addColorStop(1, `rgba(${rgbcolor},0)`);
+
+    ctx.fillStyle=grdLeft;
+
+    ctx.fill();
+
+    return "?";
+}
+
+function convertHex2Rgb(hex){
+    let regex = /([A-F\d]{2})([A-F\d]{2})([A-F\d]{2})$/;
+    let result = regex.exec(hex);
+    return result ? `${parseInt(result[1], 16)},${parseInt(result[2], 16)},${parseInt(result[3], 16)}`: null;
 }
 
 /***/ }),

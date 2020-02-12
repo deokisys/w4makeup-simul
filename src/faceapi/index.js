@@ -1,5 +1,10 @@
-import {drawImg2Canvas,drawLip} from '../util/draw.js';
+import {drawImg2Canvas} from '../util/draw.js';
 import * as faceapi from 'face-api.js';
+import Lib from './makeup/libs';
+import Blusher from './makeup/blusher';
+import fullmake from './makeup/full';
+
+
 
 Promise.all([
     faceapi.nets.faceLandmark68Net.loadFromUri('/models'),//랜드마크를 찾는 모델
@@ -8,19 +13,21 @@ Promise.all([
 
 async function start(){
     const input = document.getElementById('image')
-    const canvas = document.getElementById('canvas2');
+    const canvas = document.getElementById('canvas2');//얼굴 특징 출력
     const output = document.getElementById('output');
     const displaySize = {width:input.width,height:input.height}
     faceapi.matchDimensions(canvas, displaySize)
     faceapi.matchDimensions(output, displaySize)
+    //예측
     let landmarks = await predict(input,canvas,displaySize,output);
-    let makeupLibs = libsSet(output,landmarks.slice(48,68))
-    drawLip(output,"red",landmarks.slice(48,68))
+    //부위별 메이크업 수행
+    let lib = new Lib(input,output,landmarks)
+    let blusher = new Blusher(input,output,landmarks)
 
-    let libsButton = document.querySelector(".libsMakeButton");
-    libsButton.addEventListener("click",(evt)=>{
-        drawImg2Canvas(output,input);
-        makeupLibs(evt.target.previousElementSibling.value)
+    //적용된 메이크업 모두 수행
+    let fullmakeButton = document.querySelector(".fullMakeButton")
+    fullmakeButton.addEventListener("click",()=>{
+        fullmake(input,output,landmarks,lib.getColor(),blusher.getColor());
     })
 }
 
@@ -40,9 +47,4 @@ async function predict(input,canvas,displaySize,output){
     //48-67 입
     return resizeDetections[0].landmarks.positions
 }
-//색을 제외하고 나머지 출력될 canvas와 위치를 입력한다.
-function libsSet(output,lipPositions){
-    return  (color)=>{
-        drawLip(output,color,lipPositions)
-    };
-}
+
