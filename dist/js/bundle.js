@@ -23462,7 +23462,7 @@ module.exports = g;
 __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _util_draw_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../util/draw.js */ "./src/util/draw.js");
 /* harmony import */ var face_api_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! face-api.js */ "./node_modules/face-api.js/build/es6/index.js");
-/* harmony import */ var _makeup_libs__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./makeup/libs */ "./src/faceapi/makeup/libs.js");
+/* harmony import */ var _makeup_lips__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./makeup/lips */ "./src/faceapi/makeup/lips.js");
 /* harmony import */ var _makeup_blusher__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./makeup/blusher */ "./src/faceapi/makeup/blusher.js");
 /* harmony import */ var _makeup_full__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./makeup/full */ "./src/faceapi/makeup/full.js");
 
@@ -23488,13 +23488,13 @@ async function start(){
     //예측
     let landmarks = await predict(input,canvas,displaySize,output);
     //부위별 메이크업 수행
-    let lib = new _makeup_libs__WEBPACK_IMPORTED_MODULE_2__["default"](input,output,landmarks)
+    let lip = new _makeup_lips__WEBPACK_IMPORTED_MODULE_5__["default"](input,output,landmarks)
     let blusher = new _makeup_blusher__WEBPACK_IMPORTED_MODULE_3__["default"](input,output,landmarks)
 
     //적용된 메이크업 모두 수행
     let fullmakeButton = document.querySelector(".fullMakeButton")
     fullmakeButton.addEventListener("click",()=>{
-        Object(_makeup_full__WEBPACK_IMPORTED_MODULE_4__["default"])(input,output,landmarks,...lib.getColor(),...blusher.getColor());
+        Object(_makeup_full__WEBPACK_IMPORTED_MODULE_4__["default"])(input,output,landmarks,...lip.getColor(),...blusher.getColor());
     })
 }
 
@@ -23591,36 +23591,36 @@ function fullmakeup(input,output,landmarks,...colors){
 
 /***/ }),
 
-/***/ "./src/faceapi/makeup/libs.js":
+/***/ "./src/faceapi/makeup/lips.js":
 /*!************************************!*\
-  !*** ./src/faceapi/makeup/libs.js ***!
+  !*** ./src/faceapi/makeup/lips.js ***!
   \************************************/
 /*! exports provided: default */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "default", function() { return Lib; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "default", function() { return Lip; });
 /* harmony import */ var _util_draw_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../../util/draw.js */ "./src/util/draw.js");
 
 
-class Lib{
+class Lip{
     constructor(input,output,landmarks){
-        this.libColor="FF0000";
+        this.lipColor="FF0000";
         this.opacity=1;
         this.lipPositions = landmarks.slice(48, 68);
         
         //색 지정
-        this.libsButton = document.querySelector(".libsMakeButton");
-        this.libsButton.addEventListener("click", function(evt){
+        this.lipsButton = document.querySelector(".lipsMakeButton");
+        this.lipsButton.addEventListener("click", function(evt){
             Object(_util_draw_js__WEBPACK_IMPORTED_MODULE_0__["drawImg2Canvas"])(output, input);
-            this.libColor=evt.target.previousElementSibling.value
-            Object(_util_draw_js__WEBPACK_IMPORTED_MODULE_0__["drawLip"])(output, this.libColor,this.opacity, this.lipPositions)
+            this.lipColor=evt.target.previousElementSibling.value
+            Object(_util_draw_js__WEBPACK_IMPORTED_MODULE_0__["drawLip"])(output, this.lipColor,this.opacity, this.lipPositions)
         }.bind(this))
 
         //투명도 지정
-        this.libsOpacityButton = document.querySelector(".libsOpacity");
-        this.libsOpacityButton.addEventListener("click", function(evt){
+        this.lipsOpacityButton = document.querySelector(".lipsOpacity");
+        this.lipsOpacityButton.addEventListener("click", function(evt){
             if(evt.target.tagName==="BUTTON"){
                 if(evt.target.classList.contains("heavy")){
                     this.opacity>=1?null:this.opacity+=0.1;
@@ -23628,14 +23628,14 @@ class Lib{
                     this.opacity<=0?null:this.opacity-=0.1;
                 }
                 Object(_util_draw_js__WEBPACK_IMPORTED_MODULE_0__["drawImg2Canvas"])(output, input);
-                Object(_util_draw_js__WEBPACK_IMPORTED_MODULE_0__["drawLip"])(output, this.libColor,this.opacity, this.lipPositions)
+                Object(_util_draw_js__WEBPACK_IMPORTED_MODULE_0__["drawLip"])(output, this.lipColor,this.opacity, this.lipPositions)
             }
             return;
         }.bind(this))
     }
 
     getColor(){
-        return [this.libColor,this.opacity];
+        return [this.lipColor,this.opacity];
     }
 }
 
