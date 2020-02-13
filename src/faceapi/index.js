@@ -32,8 +32,8 @@ imgUpload.onchange=async ()=>{
 }
 
 Promise.all([
-    faceapi.nets.faceLandmark68Net.loadFromUri('/models'),//랜드마크를 찾는 모델
-    faceapi.nets.tinyFaceDetector.loadFromUri('/models')//얼굴인식 기본
+    faceapi.nets.faceLandmark68Net.loadFromUri('https://raw.githubusercontent.com/justadudewhohacks/face-api.js/master/weights'),//랜드마크를 찾는 모델
+    faceapi.nets.tinyFaceDetector.loadFromUri('https://raw.githubusercontent.com/justadudewhohacks/face-api.js/master/weights')//얼굴인식 기본
 ]).then(start)
 
 async function start(){
