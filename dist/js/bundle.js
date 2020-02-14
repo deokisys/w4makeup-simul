@@ -23598,14 +23598,14 @@ __webpack_require__.r(__webpack_exports__);
 function blushMakeup(input,output,landmark){
     //색 지정
     let blusherButton = document.querySelector(".blusherMakeButton");
-    blusherButton.addEventListener("click", function () {
+    blusherButton.onclick = () =>{
         Object(_util_draw_js__WEBPACK_IMPORTED_MODULE_0__["drawImg2Canvas"])(output, input);
         Object(_blusher__WEBPACK_IMPORTED_MODULE_1__["default"])(output,landmark)
-    })
+    }
 
     //투명도 지정
     let blusherOpacityButton = document.querySelector(".blusherOpacity");
-    blusherOpacityButton.addEventListener("click", function (evt) {
+    blusherOpacityButton.onclick = (evt) => {
         if (evt.target.tagName === "BUTTON") {
             let opacity = Number(blusherOpacityButton.dataset.opacity);
             if (evt.target.classList.contains("heavy")) {
@@ -23618,20 +23618,20 @@ function blushMakeup(input,output,landmark){
             Object(_blusher__WEBPACK_IMPORTED_MODULE_1__["default"])(output,landmark)
         }
         return;
-    })
+    }
 }
 
 function lipMakeup(input,output,landmark){
     //색 지정
     let lipsButton = document.querySelector(".lipsMakeButton");
-    lipsButton.addEventListener("click", function () {
+    lipsButton.onclick = ()=> {
         Object(_util_draw_js__WEBPACK_IMPORTED_MODULE_0__["drawImg2Canvas"])(output, input);
         Object(_lips__WEBPACK_IMPORTED_MODULE_2__["default"])(output,landmark)
-    })
+    }
 
     //투명도 지정
     let lipsOpacityButton = document.querySelector(".lipsOpacity");
-    lipsOpacityButton.addEventListener("click", function (evt) {
+    lipsOpacityButton.onclick =(evt) =>{
         if (evt.target.tagName === "BUTTON") {
             let opacity = Number(lipsOpacityButton.dataset.opacity);
             if (evt.target.classList.contains("heavy")) {
@@ -23644,16 +23644,23 @@ function lipMakeup(input,output,landmark){
             Object(_lips__WEBPACK_IMPORTED_MODULE_2__["default"])(output,landmark)
         }
         return;
-    })
+    }
 }
 function fullMakeup(input,output,landmark){
     //적용된 메이크업 모두 수행
     let fullmakeButton = document.querySelector(".fullMakeButton")
-    fullmakeButton.addEventListener("click",()=>{
+    fullmakeButton.onclick = ()=>{
         Object(_util_draw_js__WEBPACK_IMPORTED_MODULE_0__["drawImg2Canvas"])(output, input);
         Object(_lips__WEBPACK_IMPORTED_MODULE_2__["default"])(output,landmark)
         Object(_blusher__WEBPACK_IMPORTED_MODULE_1__["default"])(output,landmark)
-    })
+    }
+
+    //지우기
+    let resetButton = document.querySelector(".resetButton")
+    resetButton.onclick = ()=>{
+        Object(_util_draw_js__WEBPACK_IMPORTED_MODULE_0__["drawImg2Canvas"])(output, input);
+    }
+    
 }
 
 
@@ -23799,6 +23806,7 @@ function drawLip(canvas,color,positions){
     const ctx = canvas.getContext('2d');
 
     ctx.fillStyle=`rgba(${convertHex2Rgb(color.color)},${color.opacity})`
+    ctx.globalCompositeOperation = "overlay";
     ctx.beginPath();
     positions.topLip.map((ele,i)=>{
         if(i===0){
@@ -23819,7 +23827,6 @@ function drawLip(canvas,color,positions){
     })
 
     ctx.fill();
-    return ctx;
 }
 /**
  * 브러셔 - 중앙 영역
@@ -23829,6 +23836,7 @@ function drawLip(canvas,color,positions){
  */
 function drawBlusher(canvas,color,positions){
     const ctx = canvas.getContext('2d');
+    ctx.globalCompositeOperation = "overlay";
     let rightX=positions.rightX;
     let rightY=positions.rightY;
     let rightRadius=positions.rightRadius;
@@ -23846,6 +23854,7 @@ function drawBlusher(canvas,color,positions){
     grdRight.addColorStop(1, `rgba(${rgbcolor},0)`);
     ctx.fillStyle=grdRight;
     ctx.fill();
+    ctx.globalCompositeOperation = "overlay";
     //왼쪽
     ctx.beginPath();
     ctx.arc(leftX, leftY, leftRadius, 0, 2 * Math.PI, false);
