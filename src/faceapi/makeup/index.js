@@ -6,14 +6,14 @@ import makeuplip from './lips';
 export function blushMakeup(input,output,landmark){
     //색 지정
     let blusherButton = document.querySelector(".blusherMakeButton");
-    blusherButton.addEventListener("click", function () {
+    blusherButton.onclick = () =>{
         drawImg2Canvas(output, input);
         makeupblush(output,landmark)
-    })
+    }
 
     //투명도 지정
     let blusherOpacityButton = document.querySelector(".blusherOpacity");
-    blusherOpacityButton.addEventListener("click", function (evt) {
+    blusherOpacityButton.onclick = (evt) => {
         if (evt.target.tagName === "BUTTON") {
             let opacity = Number(blusherOpacityButton.dataset.opacity);
             if (evt.target.classList.contains("heavy")) {
@@ -26,20 +26,20 @@ export function blushMakeup(input,output,landmark){
             makeupblush(output,landmark)
         }
         return;
-    })
+    }
 }
 
 export function lipMakeup(input,output,landmark){
     //색 지정
     let lipsButton = document.querySelector(".lipsMakeButton");
-    lipsButton.addEventListener("click", function () {
+    lipsButton.onclick = ()=> {
         drawImg2Canvas(output, input);
         makeuplip(output,landmark)
-    })
+    }
 
     //투명도 지정
     let lipsOpacityButton = document.querySelector(".lipsOpacity");
-    lipsOpacityButton.addEventListener("click", function (evt) {
+    lipsOpacityButton.onclick =(evt) =>{
         if (evt.target.tagName === "BUTTON") {
             let opacity = Number(lipsOpacityButton.dataset.opacity);
             if (evt.target.classList.contains("heavy")) {
@@ -48,26 +48,25 @@ export function lipMakeup(input,output,landmark){
                 opacity <= 0 ? null : opacity -= 0.1;
             }
             lipsOpacityButton.dataset.opacity = opacity;
-            console.log(opacity)
             drawImg2Canvas(output, input);
             makeuplip(output,landmark)
         }
         return;
-    })
+    }
 }
 export function fullMakeup(input,output,landmark){
     //적용된 메이크업 모두 수행
     let fullmakeButton = document.querySelector(".fullMakeButton")
-    fullmakeButton.addEventListener("click",()=>{
+    fullmakeButton.onclick = ()=>{
         drawImg2Canvas(output, input);
         makeuplip(output,landmark)
         makeupblush(output,landmark)
-    })
+    }
 
     //지우기
     let resetButton = document.querySelector(".resetButton")
-    resetButton.addEventListener("click",()=>{
+    resetButton.onclick = ()=>{
         drawImg2Canvas(output, input);
-    })
+    }
     
 }

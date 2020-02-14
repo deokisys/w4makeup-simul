@@ -114,6 +114,7 @@ export function drawBlusher(canvas,color,positions){
     grdRight.addColorStop(1, `rgba(${rgbcolor},0)`);
     ctx.fillStyle=grdRight;
     ctx.fill();
+    ctx.globalCompositeOperation = "overlay";
     //왼쪽
     ctx.beginPath();
     ctx.arc(leftX, leftY, leftRadius, 0, 2 * Math.PI, false);
