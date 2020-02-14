@@ -23492,7 +23492,7 @@ imgUpload.onchange=async ()=>{
         //예측
         let landmarks = await predict(input,canvas,displaySize,output);
         //부위별 메이크업 수행
-        let lip = new _makeup_lips__WEBPACK_IMPORTED_MODULE_2__["default"](input,output,landmarks)
+        Object(_makeup__WEBPACK_IMPORTED_MODULE_3__["lipMakeup"])(input,output,landmarks)
         Object(_makeup__WEBPACK_IMPORTED_MODULE_3__["blushMakeup"])(input,output,landmarks)
 
         // //적용된 메이크업 모두 수행
@@ -23608,14 +23608,18 @@ function fullmakeup(input,output,landmarks,...colors){
 /*!*************************************!*\
   !*** ./src/faceapi/makeup/index.js ***!
   \*************************************/
-/*! exports provided: blushMakeup */
+/*! exports provided: blushMakeup, lipMakeup */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "blushMakeup", function() { return blushMakeup; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "lipMakeup", function() { return lipMakeup; });
 /* harmony import */ var _util_draw_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../../util/draw.js */ "./src/util/draw.js");
 /* harmony import */ var _blusher__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./blusher */ "./src/faceapi/makeup/blusher.js");
+/* harmony import */ var _lips__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./lips */ "./src/faceapi/makeup/lips.js");
+
+
 
 
 
@@ -23645,6 +23649,31 @@ function blushMakeup(input,output,landmark){
     })
 }
 
+function lipMakeup(input,output,landmark){
+    //색 지정
+    let lipsButton = document.querySelector(".lipsMakeButton");
+    lipsButton.addEventListener("click", function () {
+        Object(_util_draw_js__WEBPACK_IMPORTED_MODULE_0__["drawImg2Canvas"])(output, input);
+        Object(_lips__WEBPACK_IMPORTED_MODULE_2__["default"])(output,landmark)
+    })
+
+    //투명도 지정
+    let lipsOpacityButton = document.querySelector(".lipsOpacity");
+    lipsOpacityButton.addEventListener("click", function (evt) {
+        if (evt.target.tagName === "BUTTON") {
+            let opacity = Number(lipsOpacityButton.dataset.opacity);
+            if (evt.target.classList.contains("heavy")) {
+                opacity >= 1 ? null : opacity += 0.1;
+            } else if (evt.target.classList.contains("light")) {
+                opacity <= 0 ? null : opacity -= 0.1;
+            }
+            lipsOpacityButton.dataset.opacity = opacity;
+            Object(_util_draw_js__WEBPACK_IMPORTED_MODULE_0__["drawImg2Canvas"])(output, input);
+            Object(_lips__WEBPACK_IMPORTED_MODULE_2__["default"])(output,landmark)
+        }
+        return;
+    })
+}
 
 /***/ }),
 
@@ -23657,45 +23686,35 @@ function blushMakeup(input,output,landmark){
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "default", function() { return Lip; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "default", function() { return makeup; });
 /* harmony import */ var _util_draw_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../../util/draw.js */ "./src/util/draw.js");
 
 
-class Lip{
-    constructor(input,output,landmarks){
-        this.lipColor="FF0000";
-        this.opacity=1;
-        this.lipPositions = landmarks.slice(48, 68);
-        
-        //색 지정
-        this.lipsButton = document.querySelector(".lipsMakeButton");
-        this.lipsButton.addEventListener("click", function(evt){
-            Object(_util_draw_js__WEBPACK_IMPORTED_MODULE_0__["drawImg2Canvas"])(output, input);
-            this.lipColor=evt.target.previousElementSibling.value
-            Object(_util_draw_js__WEBPACK_IMPORTED_MODULE_0__["drawLip"])(output, this.lipColor,this.opacity, this.lipPositions)
-        }.bind(this))
+//입술의 위치를 잡는 함수
+function getLipsPosition(landmarks){
 
-        //투명도 지정
-        this.lipsOpacityButton = document.querySelector(".lipsOpacity");
-        this.lipsOpacityButton.addEventListener("click", function(evt){
-            if(evt.target.tagName==="BUTTON"){
-                if(evt.target.classList.contains("heavy")){
-                    this.opacity>=1?null:this.opacity+=0.1;
-                }else if(evt.target.classList.contains("light")){
-                    this.opacity<=0?null:this.opacity-=0.1;
-                }
-                Object(_util_draw_js__WEBPACK_IMPORTED_MODULE_0__["drawImg2Canvas"])(output, input);
-                Object(_util_draw_js__WEBPACK_IMPORTED_MODULE_0__["drawLip"])(output, this.lipColor,this.opacity, this.lipPositions)
-            }
-            return;
-        }.bind(this))
+    let topLip=[0,1,2,3,4,5,6,15,14,13];
+    let bottomLip=[7,8,9,10,11,12,19,18,17,16];
+    
+    let positions = {
+        topLip:topLip.map((ele)=>{
+            return {x:landmarks[ele+48].x,y:landmarks[ele+48].y}
+        }),
+        bottomLip:bottomLip.map((ele)=>{
+            return {x:landmarks[ele+48].x,y:landmarks[ele+48].y}
+        })
     }
-
-    getColor(){
-        return [this.lipColor,this.opacity];
-    }
+    return positions;
 }
 
+
+
+function makeup(output,landmark){
+    let color=document.querySelector(".lipscolor").value;
+    let opacity=document.querySelector(".lipsOpacity").dataset.opacity;
+    let positions = getLipsPosition(landmark);    
+    Object(_util_draw_js__WEBPACK_IMPORTED_MODULE_0__["drawLip"])(output, {color,opacity}, positions)
+}
 
 /***/ }),
 
@@ -23794,30 +23813,27 @@ function drawDot(canvas,...position){
  * @param {*} color 
  * @param {*} positions 
  */
-function drawLip(canvas,color="FF0000",opacity,positions){
+function drawLip(canvas,color,positions){
     const ctx = canvas.getContext('2d');
-    let topLip=[0,1,2,3,4,5,6,15,14,13];
-    let bottomLip=[7,8,9,10,11,12,19,18,17,16];
 
-    ctx.fillStyle=`rgba(${convertHex2Rgb(color)},${opacity})`
-
+    ctx.fillStyle=`rgba(${convertHex2Rgb(color.color)},${color.opacity})`
     ctx.beginPath();
-    topLip.map((ele,i)=>{
+    positions.topLip.map((ele,i)=>{
         if(i===0){
-            ctx.moveTo(positions[ele].x, positions[ele].y);
+            ctx.moveTo(ele.x, ele.y);
             return;
         } 
-        ctx.lineTo(positions[ele].x, positions[ele].y);
+        ctx.lineTo(ele.x, ele.y);
     })
     ctx.fill();
 
     ctx.beginPath();
-    bottomLip.map((ele,i)=>{
+    positions.bottomLip.map((ele,i)=>{
         if(i===0){
-            ctx.moveTo(positions[ele].x, positions[ele].y);
+            ctx.moveTo(ele.x, ele.y);
             return;
         } 
-        ctx.lineTo(positions[ele].x, positions[ele].y);
+        ctx.lineTo(ele.x, ele.y);
     })
 
     ctx.fill();

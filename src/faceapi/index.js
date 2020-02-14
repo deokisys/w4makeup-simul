@@ -1,7 +1,7 @@
 import {drawImg2Canvas} from '../util/draw.js';
 import * as faceapi from 'face-api.js';
 import Lip from './makeup/lips';
-import {blushMakeup} from './makeup';
+import {blushMakeup,lipMakeup} from './makeup';
 import fullmake from './makeup/full';
 
 let imgUpload = document.querySelector("#myFileUpload");
@@ -25,7 +25,7 @@ imgUpload.onchange=async ()=>{
         //예측
         let landmarks = await predict(input,canvas,displaySize,output);
         //부위별 메이크업 수행
-        let lip = new Lip(input,output,landmarks)
+        lipMakeup(input,output,landmarks)
         blushMakeup(input,output,landmarks)
 
         // //적용된 메이크업 모두 수행

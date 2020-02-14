@@ -1,36 +1,27 @@
-import { drawImg2Canvas, drawLip } from '../../util/draw.js';
+import { drawLip } from '../../util/draw.js';
 
-export default class Lip{
-    constructor(input,output,landmarks){
-        this.lipColor="FF0000";
-        this.opacity=1;
-        this.lipPositions = landmarks.slice(48, 68);
-        
-        //색 지정
-        this.lipsButton = document.querySelector(".lipsMakeButton");
-        this.lipsButton.addEventListener("click", function(evt){
-            drawImg2Canvas(output, input);
-            this.lipColor=evt.target.previousElementSibling.value
-            drawLip(output, this.lipColor,this.opacity, this.lipPositions)
-        }.bind(this))
+//입술의 위치를 잡는 함수
+function getLipsPosition(landmarks){
 
-        //투명도 지정
-        this.lipsOpacityButton = document.querySelector(".lipsOpacity");
-        this.lipsOpacityButton.addEventListener("click", function(evt){
-            if(evt.target.tagName==="BUTTON"){
-                if(evt.target.classList.contains("heavy")){
-                    this.opacity>=1?null:this.opacity+=0.1;
-                }else if(evt.target.classList.contains("light")){
-                    this.opacity<=0?null:this.opacity-=0.1;
-                }
-                drawImg2Canvas(output, input);
-                drawLip(output, this.lipColor,this.opacity, this.lipPositions)
-            }
-            return;
-        }.bind(this))
+    let topLip=[0,1,2,3,4,5,6,15,14,13];
+    let bottomLip=[7,8,9,10,11,12,19,18,17,16];
+    
+    let positions = {
+        topLip:topLip.map((ele)=>{
+            return {x:landmarks[ele+48].x,y:landmarks[ele+48].y}
+        }),
+        bottomLip:bottomLip.map((ele)=>{
+            return {x:landmarks[ele+48].x,y:landmarks[ele+48].y}
+        })
     }
+    return positions;
+}
 
-    getColor(){
-        return [this.lipColor,this.opacity];
-    }
+
+
+export default function makeup(output,landmark){
+    let color=document.querySelector(".lipscolor").value;
+    let opacity=document.querySelector(".lipsOpacity").dataset.opacity;
+    let positions = getLipsPosition(landmark);    
+    drawLip(output, {color,opacity}, positions)
 }

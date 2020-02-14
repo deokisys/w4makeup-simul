@@ -62,30 +62,27 @@ export function drawDot(canvas,...position){
  * @param {*} color 
  * @param {*} positions 
  */
-export function drawLip(canvas,color="FF0000",opacity,positions){
+export function drawLip(canvas,color,positions){
     const ctx = canvas.getContext('2d');
-    let topLip=[0,1,2,3,4,5,6,15,14,13];
-    let bottomLip=[7,8,9,10,11,12,19,18,17,16];
 
-    ctx.fillStyle=`rgba(${convertHex2Rgb(color)},${opacity})`
-
+    ctx.fillStyle=`rgba(${convertHex2Rgb(color.color)},${color.opacity})`
     ctx.beginPath();
-    topLip.map((ele,i)=>{
+    positions.topLip.map((ele,i)=>{
         if(i===0){
-            ctx.moveTo(positions[ele].x, positions[ele].y);
+            ctx.moveTo(ele.x, ele.y);
             return;
         } 
-        ctx.lineTo(positions[ele].x, positions[ele].y);
+        ctx.lineTo(ele.x, ele.y);
     })
     ctx.fill();
 
     ctx.beginPath();
-    bottomLip.map((ele,i)=>{
+    positions.bottomLip.map((ele,i)=>{
         if(i===0){
-            ctx.moveTo(positions[ele].x, positions[ele].y);
+            ctx.moveTo(ele.x, ele.y);
             return;
         } 
-        ctx.lineTo(positions[ele].x, positions[ele].y);
+        ctx.lineTo(ele.x, ele.y);
     })
 
     ctx.fill();
