@@ -1,8 +1,6 @@
 import {drawImg2Canvas} from '../util/draw.js';
 import * as faceapi from 'face-api.js';
-import Lip from './makeup/lips';
-import {blushMakeup,lipMakeup} from './makeup';
-import fullmake from './makeup/full';
+import {blushMakeup,lipMakeup,fullMakeup} from './makeup';
 
 let imgUpload = document.querySelector("#myFileUpload");
 imgUpload.onchange=async ()=>{
@@ -28,11 +26,7 @@ imgUpload.onchange=async ()=>{
         lipMakeup(input,output,landmarks)
         blushMakeup(input,output,landmarks)
 
-        // //적용된 메이크업 모두 수행
-        // let fullmakeButton = document.querySelector(".fullMakeButton")
-        // fullmakeButton.addEventListener("click",()=>{
-        //     fullmake(input,output,landmarks,...lip.getColor(),...blusher.getColor());
-        // })
+        fullMakeup(input,output,landmarks)
     }
     
 }

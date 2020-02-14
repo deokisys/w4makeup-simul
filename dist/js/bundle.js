@@ -23462,11 +23462,7 @@ module.exports = g;
 __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _util_draw_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../util/draw.js */ "./src/util/draw.js");
 /* harmony import */ var face_api_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! face-api.js */ "./node_modules/face-api.js/build/es6/index.js");
-/* harmony import */ var _makeup_lips__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./makeup/lips */ "./src/faceapi/makeup/lips.js");
-/* harmony import */ var _makeup__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./makeup */ "./src/faceapi/makeup/index.js");
-/* harmony import */ var _makeup_full__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./makeup/full */ "./src/faceapi/makeup/full.js");
-
-
+/* harmony import */ var _makeup__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./makeup */ "./src/faceapi/makeup/index.js");
 
 
 
@@ -23492,14 +23488,10 @@ imgUpload.onchange=async ()=>{
         //예측
         let landmarks = await predict(input,canvas,displaySize,output);
         //부위별 메이크업 수행
-        Object(_makeup__WEBPACK_IMPORTED_MODULE_3__["lipMakeup"])(input,output,landmarks)
-        Object(_makeup__WEBPACK_IMPORTED_MODULE_3__["blushMakeup"])(input,output,landmarks)
+        Object(_makeup__WEBPACK_IMPORTED_MODULE_2__["lipMakeup"])(input,output,landmarks)
+        Object(_makeup__WEBPACK_IMPORTED_MODULE_2__["blushMakeup"])(input,output,landmarks)
 
-        // //적용된 메이크업 모두 수행
-        // let fullmakeButton = document.querySelector(".fullMakeButton")
-        // fullmakeButton.addEventListener("click",()=>{
-        //     fullmake(input,output,landmarks,...lip.getColor(),...blusher.getColor());
-        // })
+        Object(_makeup__WEBPACK_IMPORTED_MODULE_2__["fullMakeup"])(input,output,landmarks)
     }
     
 }
@@ -23583,38 +23575,18 @@ function makeup(output,landmark){
 
 /***/ }),
 
-/***/ "./src/faceapi/makeup/full.js":
-/*!************************************!*\
-  !*** ./src/faceapi/makeup/full.js ***!
-  \************************************/
-/*! exports provided: default */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-__webpack_require__.r(__webpack_exports__);
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "default", function() { return fullmakeup; });
-/* harmony import */ var _util_draw_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../../util/draw.js */ "./src/util/draw.js");
-
-
-function fullmakeup(input,output,landmarks,...colors){
-    Object(_util_draw_js__WEBPACK_IMPORTED_MODULE_0__["drawImg2Canvas"])(output, input);
-    Object(_util_draw_js__WEBPACK_IMPORTED_MODULE_0__["drawLip"])(output, colors[0],colors[1], landmarks.slice(48, 68))
-    Object(_util_draw_js__WEBPACK_IMPORTED_MODULE_0__["drawBlusher"])(output, colors[2],colors[3], landmarks)
-}
-
-/***/ }),
-
 /***/ "./src/faceapi/makeup/index.js":
 /*!*************************************!*\
   !*** ./src/faceapi/makeup/index.js ***!
   \*************************************/
-/*! exports provided: blushMakeup, lipMakeup */
+/*! exports provided: blushMakeup, lipMakeup, fullMakeup */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "blushMakeup", function() { return blushMakeup; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "lipMakeup", function() { return lipMakeup; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "fullMakeup", function() { return fullMakeup; });
 /* harmony import */ var _util_draw_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../../util/draw.js */ "./src/util/draw.js");
 /* harmony import */ var _blusher__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./blusher */ "./src/faceapi/makeup/blusher.js");
 /* harmony import */ var _lips__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./lips */ "./src/faceapi/makeup/lips.js");
@@ -23674,6 +23646,16 @@ function lipMakeup(input,output,landmark){
         return;
     })
 }
+function fullMakeup(input,output,landmark){
+    //적용된 메이크업 모두 수행
+    let fullmakeButton = document.querySelector(".fullMakeButton")
+    fullmakeButton.addEventListener("click",()=>{
+        Object(_util_draw_js__WEBPACK_IMPORTED_MODULE_0__["drawImg2Canvas"])(output, input);
+        Object(_lips__WEBPACK_IMPORTED_MODULE_2__["default"])(output,landmark)
+        Object(_blusher__WEBPACK_IMPORTED_MODULE_1__["default"])(output,landmark)
+    })
+}
+
 
 /***/ }),
 

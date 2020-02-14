@@ -54,3 +54,12 @@ export function lipMakeup(input,output,landmark){
         return;
     })
 }
+export function fullMakeup(input,output,landmark){
+    //적용된 메이크업 모두 수행
+    let fullmakeButton = document.querySelector(".fullMakeButton")
+    fullmakeButton.addEventListener("click",()=>{
+        drawImg2Canvas(output, input);
+        makeuplip(output,landmark)
+        makeupblush(output,landmark)
+    })
+}
