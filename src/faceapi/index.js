@@ -9,26 +9,30 @@ imgUpload.onchange=async ()=>{
     const imgFile = document.getElementById('myFileUpload').files[0]
     // create an HTMLImageElement from a Blob
     const img = await faceapi.bufferToImage(imgFile)
-    document.getElementById('myImg').src = img.src
-    
-    //시작
     const input = document.getElementById('myImg')
-    const canvas = document.getElementById('canvas2');//얼굴 특징 출력
-    const output = document.getElementById('output');
-    const displaySize = {width:input.width,height:input.height}
-    faceapi.matchDimensions(canvas, displaySize)
-    faceapi.matchDimensions(output, displaySize)
-    //예측
-    let landmarks = await predict(input,canvas,displaySize,output);
-    //부위별 메이크업 수행
-    let lip = new Lip(input,output,landmarks)
-    let blusher = new Blusher(input,output,landmarks)
+    input.src = img.src
 
-    //적용된 메이크업 모두 수행
-    let fullmakeButton = document.querySelector(".fullMakeButton")
-    fullmakeButton.addEventListener("click",()=>{
-        fullmake(input,output,landmarks,...lip.getColor(),...blusher.getColor());
-    })
+
+    //시작
+    input.onload = async ()=>{
+        const canvas = document.getElementById('canvas2');//얼굴 특징 출력
+        const output = document.getElementById('output');
+        const displaySize = {width:input.width,height:input.height}
+        faceapi.matchDimensions(canvas, displaySize)
+        faceapi.matchDimensions(output, displaySize)
+        //예측
+        let landmarks = await predict(input,canvas,displaySize,output);
+        //부위별 메이크업 수행
+        let lip = new Lip(input,output,landmarks)
+        let blusher = new Blusher(input,output,landmarks)
+
+        //적용된 메이크업 모두 수행
+        let fullmakeButton = document.querySelector(".fullMakeButton")
+        fullmakeButton.addEventListener("click",()=>{
+            fullmake(input,output,landmarks,...lip.getColor(),...blusher.getColor());
+        })
+    }
+    
 }
 
 Promise.all([
