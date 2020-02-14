@@ -1,10 +1,22 @@
 # 얼굴 화장 UI
 `얼굴을 인식후, 화장 시뮬레이션을 구현합니다.`
 
+# 정리
+- [위키](https://oss.navercorp.com/s-junbae/intern-face/wiki)
+
 # 진행
 1. 얼굴인식 모델을 이용하여 얼굴 포인트 인식
     - blazeface
+        - 6개의 랜드마크 표시가능 
+            - 눈, 코, 입, 귀
     - face-api
+        - 얼굴의 전체적인 윤곽선 확인 가능
+        - 눈썹, 눈, 코, 입술, 턱선
+            - 총 68개의 포인트를 찾아냅니다.
+            - 이 포인트들로 눈의 윤곽, 눈썹의 윤곽, 입술, 턱선과 같은 선으로 표현이 가능합니다.
+    - 비교 사진
+        - ![입력사진,blazeface,faceapi](https://media.oss.navercorp.com/user/16793/files/a4c78580-4c2d-11ea-8832-33b8a5bb3648)
+            - 좌측부터 입력사진,blazeface,faceapi로 각 api에서 추출할 수 있는 포인트를 출력해 보았습니다.
 2. 전체적인 UI구상
     - 이미지 입력
     - 화장할 부위, 색 선택
@@ -18,4 +30,11 @@
     - https://github.com/justadudewhohacks/face-recognition.js
     - https://github.com/justadudewhohacks/face-api.js
     - https://github.com/tensorflow/tfjs-models/tree/master/blazeface
-
+- 자동화장(DMT)
+    - https://github.com/Honlan/DMT
+    - https://arxiv.org/abs/1907.01144
+    - https://www.semion.io/doc/disentangled-makeup-transfer-with-generative-adversarial-network
+- 자동채색(pix2pix)
+    - https://phillipi.github.io/pix2pix/
+- 유저가이드 채색
+    - https://richzhang.github.io/ideepcolor/
