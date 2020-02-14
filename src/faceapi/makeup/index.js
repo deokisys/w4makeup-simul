@@ -48,6 +48,7 @@ export function lipMakeup(input,output,landmark){
                 opacity <= 0 ? null : opacity -= 0.1;
             }
             lipsOpacityButton.dataset.opacity = opacity;
+            console.log(opacity)
             drawImg2Canvas(output, input);
             makeuplip(output,landmark)
         }
@@ -62,4 +63,11 @@ export function fullMakeup(input,output,landmark){
         makeuplip(output,landmark)
         makeupblush(output,landmark)
     })
+
+    //지우기
+    let resetButton = document.querySelector(".resetButton")
+    resetButton.addEventListener("click",()=>{
+        drawImg2Canvas(output, input);
+    })
+    
 }

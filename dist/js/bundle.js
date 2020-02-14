@@ -23640,6 +23640,7 @@ function lipMakeup(input,output,landmark){
                 opacity <= 0 ? null : opacity -= 0.1;
             }
             lipsOpacityButton.dataset.opacity = opacity;
+            console.log(opacity)
             Object(_util_draw_js__WEBPACK_IMPORTED_MODULE_0__["drawImg2Canvas"])(output, input);
             Object(_lips__WEBPACK_IMPORTED_MODULE_2__["default"])(output,landmark)
         }
@@ -23654,6 +23655,13 @@ function fullMakeup(input,output,landmark){
         Object(_lips__WEBPACK_IMPORTED_MODULE_2__["default"])(output,landmark)
         Object(_blusher__WEBPACK_IMPORTED_MODULE_1__["default"])(output,landmark)
     })
+
+    //지우기
+    let resetButton = document.querySelector(".resetButton")
+    resetButton.addEventListener("click",()=>{
+        Object(_util_draw_js__WEBPACK_IMPORTED_MODULE_0__["drawImg2Canvas"])(output, input);
+    })
+    
 }
 
 
@@ -23799,6 +23807,7 @@ function drawLip(canvas,color,positions){
     const ctx = canvas.getContext('2d');
 
     ctx.fillStyle=`rgba(${convertHex2Rgb(color.color)},${color.opacity})`
+    ctx.globalCompositeOperation = "overlay";
     ctx.beginPath();
     positions.topLip.map((ele,i)=>{
         if(i===0){
@@ -23819,7 +23828,6 @@ function drawLip(canvas,color,positions){
     })
 
     ctx.fill();
-    return ctx;
 }
 /**
  * 브러셔 - 중앙 영역
@@ -23829,6 +23837,7 @@ function drawLip(canvas,color,positions){
  */
 function drawBlusher(canvas,color,positions){
     const ctx = canvas.getContext('2d');
+    ctx.globalCompositeOperation = "overlay";
     let rightX=positions.rightX;
     let rightY=positions.rightY;
     let rightRadius=positions.rightRadius;

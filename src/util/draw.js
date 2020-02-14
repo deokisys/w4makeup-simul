@@ -66,6 +66,7 @@ export function drawLip(canvas,color,positions){
     const ctx = canvas.getContext('2d');
 
     ctx.fillStyle=`rgba(${convertHex2Rgb(color.color)},${color.opacity})`
+    ctx.globalCompositeOperation = "overlay";
     ctx.beginPath();
     positions.topLip.map((ele,i)=>{
         if(i===0){
@@ -86,7 +87,6 @@ export function drawLip(canvas,color,positions){
     })
 
     ctx.fill();
-    return ctx;
 }
 /**
  * 브러셔 - 중앙 영역
@@ -96,6 +96,7 @@ export function drawLip(canvas,color,positions){
  */
 export function drawBlusher(canvas,color,positions){
     const ctx = canvas.getContext('2d');
+    ctx.globalCompositeOperation = "overlay";
     let rightX=positions.rightX;
     let rightY=positions.rightY;
     let rightRadius=positions.rightRadius;
