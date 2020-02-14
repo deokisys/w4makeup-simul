@@ -23463,7 +23463,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _util_draw_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../util/draw.js */ "./src/util/draw.js");
 /* harmony import */ var face_api_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! face-api.js */ "./node_modules/face-api.js/build/es6/index.js");
 /* harmony import */ var _makeup_lips__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./makeup/lips */ "./src/faceapi/makeup/lips.js");
-/* harmony import */ var _makeup_blusher__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./makeup/blusher */ "./src/faceapi/makeup/blusher.js");
+/* harmony import */ var _makeup__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./makeup */ "./src/faceapi/makeup/index.js");
 /* harmony import */ var _makeup_full__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./makeup/full */ "./src/faceapi/makeup/full.js");
 
 
@@ -23482,22 +23482,24 @@ imgUpload.onchange=async ()=>{
 
     //시작
     input.onload = async ()=>{
+        let makeupModule = document.querySelector(".makeup");
         const canvas = document.getElementById('canvas2');//얼굴 특징 출력
         const output = document.getElementById('output');
         const displaySize = {width:input.width,height:input.height}
         face_api_js__WEBPACK_IMPORTED_MODULE_1__["matchDimensions"](canvas, displaySize)
         face_api_js__WEBPACK_IMPORTED_MODULE_1__["matchDimensions"](output, displaySize)
+        makeupModule.style.display = "block";// 메이크업 ui 표시
         //예측
         let landmarks = await predict(input,canvas,displaySize,output);
         //부위별 메이크업 수행
         let lip = new _makeup_lips__WEBPACK_IMPORTED_MODULE_2__["default"](input,output,landmarks)
-        let blusher = new _makeup_blusher__WEBPACK_IMPORTED_MODULE_3__["default"](input,output,landmarks)
+        Object(_makeup__WEBPACK_IMPORTED_MODULE_3__["blushMakeup"])(input,output,landmarks)
 
-        //적용된 메이크업 모두 수행
-        let fullmakeButton = document.querySelector(".fullMakeButton")
-        fullmakeButton.addEventListener("click",()=>{
-            Object(_makeup_full__WEBPACK_IMPORTED_MODULE_4__["default"])(input,output,landmarks,...lip.getColor(),...blusher.getColor());
-        })
+        // //적용된 메이크업 모두 수행
+        // let fullmakeButton = document.querySelector(".fullMakeButton")
+        // fullmakeButton.addEventListener("click",()=>{
+        //     fullmake(input,output,landmarks,...lip.getColor(),...blusher.getColor());
+        // })
     }
     
 }
@@ -23509,10 +23511,7 @@ Promise.all([
 
 async function start(){
     let uploadModule = document.querySelector("#myFileUpload");
-    let makeupModule = document.querySelector(".makeup");
     uploadModule.style.display = "block";
-    makeupModule.style.display = "block";
-
     console.log("loadmodel");
 }
 
@@ -23546,45 +23545,41 @@ async function predict(input,canvas,displaySize,output){
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "default", function() { return Blusher; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "default", function() { return makeup; });
 /* harmony import */ var _util_draw_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../../util/draw.js */ "./src/util/draw.js");
 
 
-class Blusher{
-    constructor(input,output,landmarks){
-        this.blusherColor="FF0000";
-        this.opacity=1;
-
-        //색 지정
-        this.blusherButton = document.querySelector(".blusherMakeButton");
-        this.blusherButton.addEventListener("click", function(evt){
-            Object(_util_draw_js__WEBPACK_IMPORTED_MODULE_0__["drawImg2Canvas"])(output, input);
-            this.blusherColor = evt.target.previousElementSibling.value;
-            Object(_util_draw_js__WEBPACK_IMPORTED_MODULE_0__["drawBlusher"])(output, this.blusherColor,this.opacity, landmarks)
-        }.bind(this))
-
-        //투명도 지정
-        this.blusherOpacityButton = document.querySelector(".blusherOpacity");
-        this.blusherOpacityButton.addEventListener("click", function(evt){
-            if(evt.target.tagName==="BUTTON"){
-                if(evt.target.classList.contains("heavy")){
-                    this.opacity>=1?null:this.opacity+=0.1;
-                }else if(evt.target.classList.contains("light")){
-                    this.opacity<=0?null:this.opacity-=0.1;
-                }
-                Object(_util_draw_js__WEBPACK_IMPORTED_MODULE_0__["drawImg2Canvas"])(output, input);
-                Object(_util_draw_js__WEBPACK_IMPORTED_MODULE_0__["drawBlusher"])(output, this.blusherColor,this.opacity, landmarks)
-            }
-            return;
-        }.bind(this))
+//볼의 위치, 영역을 정리하는 함수
+function getBlushPosition(landmarks){
+    let positions = {
+        //오른쪽 눈 기준
+        //45번 x좌표 
+        rightX: landmarks[45].x,
+        //오른쪽 턱
+        //y좌표는 13,14번 사이
+        rightY: (landmarks[13].y + landmarks[14].y) / 2,
+        //크기
+        //x좌표 부터 13번까지의 80%거리를 반지름으로 
+        rightRadius: (landmarks[13].x - landmarks[45].x) * 0.8,
+        //왼쪽 눈 기준
+        //x좌표 36번
+        leftX: landmarks[41].x,
+        //왼쪽 볼
+        //y좌표는 2,3번 사이
+        leftY: (landmarks[2].y + landmarks[3].y) / 2,
+        //크기
+        //x좌표 부터 3번까지의 80%거리를 반지름
+        leftRadius: (landmarks[41].x - landmarks[3].x) * 0.8
     }
-
-    getColor(){
-        return [this.blusherColor,this.opacity];
-    }
+    return positions;
 }
 
-
+function makeup(output,landmark){
+    let color=document.querySelector(".blushcolor").value;
+    let opacity=document.querySelector(".blusherOpacity").dataset.opacity;
+    let positions = getBlushPosition(landmark);    
+    Object(_util_draw_js__WEBPACK_IMPORTED_MODULE_0__["drawBlusher"])(output, {color,opacity}, positions)
+}
 
 /***/ }),
 
@@ -23606,6 +23601,50 @@ function fullmakeup(input,output,landmarks,...colors){
     Object(_util_draw_js__WEBPACK_IMPORTED_MODULE_0__["drawLip"])(output, colors[0],colors[1], landmarks.slice(48, 68))
     Object(_util_draw_js__WEBPACK_IMPORTED_MODULE_0__["drawBlusher"])(output, colors[2],colors[3], landmarks)
 }
+
+/***/ }),
+
+/***/ "./src/faceapi/makeup/index.js":
+/*!*************************************!*\
+  !*** ./src/faceapi/makeup/index.js ***!
+  \*************************************/
+/*! exports provided: blushMakeup */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "blushMakeup", function() { return blushMakeup; });
+/* harmony import */ var _util_draw_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../../util/draw.js */ "./src/util/draw.js");
+/* harmony import */ var _blusher__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./blusher */ "./src/faceapi/makeup/blusher.js");
+
+
+
+function blushMakeup(input,output,landmark){
+    //색 지정
+    let blusherButton = document.querySelector(".blusherMakeButton");
+    blusherButton.addEventListener("click", function () {
+        Object(_util_draw_js__WEBPACK_IMPORTED_MODULE_0__["drawImg2Canvas"])(output, input);
+        Object(_blusher__WEBPACK_IMPORTED_MODULE_1__["default"])(output,landmark)
+    })
+
+    //투명도 지정
+    let blusherOpacityButton = document.querySelector(".blusherOpacity");
+    blusherOpacityButton.addEventListener("click", function (evt) {
+        if (evt.target.tagName === "BUTTON") {
+            let opacity = Number(blusherOpacityButton.dataset.opacity);
+            if (evt.target.classList.contains("heavy")) {
+                opacity >= 1 ? null : opacity += 0.1;
+            } else if (evt.target.classList.contains("light")) {
+                opacity <= 0 ? null : opacity -= 0.1;
+            }
+            blusherOpacityButton.dataset.opacity = opacity;
+            Object(_util_draw_js__WEBPACK_IMPORTED_MODULE_0__["drawImg2Canvas"])(output, input);
+            Object(_blusher__WEBPACK_IMPORTED_MODULE_1__["default"])(output,landmark)
+        }
+        return;
+    })
+}
+
 
 /***/ }),
 
@@ -23786,64 +23825,38 @@ function drawLip(canvas,color="FF0000",opacity,positions){
 }
 /**
  * 브러셔 - 중앙 영역
- * @param {*} canvas 
- * @param {*} color 
- * @param {*} positions 
+ * @param {*} 그리는 영역 
+ * @param {*} 색,투명도 
+ * @param {*} 위치 
  */
-function drawBlusher(canvas,color="FF0000",opacity,positions){
+function drawBlusher(canvas,color,positions){
     const ctx = canvas.getContext('2d');
-    let rightX=0;
-    let rightY=0;
-    let rightRadius=0;
-    let leftX=0;
-    let leftY=0;
-    let leftRadius=0;
-    let rgbcolor = convertHex2Rgb(color);
+    let rightX=positions.rightX;
+    let rightY=positions.rightY;
+    let rightRadius=positions.rightRadius;
+    let leftX=positions.leftX;
+    let leftY=positions.leftY;
+    let leftRadius=positions.leftRadius;
+    let rgbcolor = convertHex2Rgb(color.color);
     //중앙영역
     //오른쪽
     ctx.beginPath();
-    //오른쪽 눈 기준
-        //45번 x좌표 
-    rightX=positions[45].x;
-    //오른쪽 턱
-        //y좌표는 13,14번 사이
-    rightY=(positions[13].y+positions[14].y)/2;
-    //크기
-        //x좌표 부터 13번까지의 80%거리를 반지름으로 
-    rightRadius=(positions[13].x - rightX)*0.8
     ctx.arc(rightX, rightY, rightRadius, 0, 2 * Math.PI, false);
     //색
     let grdRight = ctx.createRadialGradient(rightX, rightY, rightRadius/6, rightX,rightY,rightRadius);
-    grdRight.addColorStop(0, `rgb(${rgbcolor},${opacity})`);
+    grdRight.addColorStop(0, `rgb(${rgbcolor},${color.opacity})`);
     grdRight.addColorStop(1, `rgba(${rgbcolor},0)`);
-
     ctx.fillStyle=grdRight;
-
     ctx.fill();
-    
-    
-
     //왼쪽
     ctx.beginPath();
-    //왼쪽 눈 기준
-        //x좌표 36번
-    leftX=positions[41].x;
-    //왼쪽 볼
-        //y좌표는 2,3번 사이
-    leftY=(positions[2].y+positions[3].y)/2;
-    //크기
-        //x좌표 부터 3번까지의 80%거리를 반지름
-    leftRadius=( leftX-positions[3].x)*0.8
     ctx.arc(leftX, leftY, leftRadius, 0, 2 * Math.PI, false);
+    //왼쪽 색지정
     let grdLeft = ctx.createRadialGradient(leftX, leftY, leftRadius/6, leftX,leftY,leftRadius);
-    grdLeft.addColorStop(0, `rgb(${rgbcolor},${opacity})`);
+    grdLeft.addColorStop(0, `rgb(${rgbcolor},${color.opacity})`);
     grdLeft.addColorStop(1, `rgba(${rgbcolor},0)`);
-
     ctx.fillStyle=grdLeft;
-
     ctx.fill();
-
-    return "?";
 }
 
 function convertHex2Rgb(hex){

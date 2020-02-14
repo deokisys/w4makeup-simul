@@ -1,7 +1,7 @@
 import {drawImg2Canvas} from '../util/draw.js';
 import * as faceapi from 'face-api.js';
 import Lip from './makeup/lips';
-import Blusher from './makeup/blusher';
+import {blushMakeup} from './makeup';
 import fullmake from './makeup/full';
 
 let imgUpload = document.querySelector("#myFileUpload");
@@ -15,22 +15,24 @@ imgUpload.onchange=async ()=>{
 
     //시작
     input.onload = async ()=>{
+        let makeupModule = document.querySelector(".makeup");
         const canvas = document.getElementById('canvas2');//얼굴 특징 출력
         const output = document.getElementById('output');
         const displaySize = {width:input.width,height:input.height}
         faceapi.matchDimensions(canvas, displaySize)
         faceapi.matchDimensions(output, displaySize)
+        makeupModule.style.display = "block";// 메이크업 ui 표시
         //예측
         let landmarks = await predict(input,canvas,displaySize,output);
         //부위별 메이크업 수행
         let lip = new Lip(input,output,landmarks)
-        let blusher = new Blusher(input,output,landmarks)
+        blushMakeup(input,output,landmarks)
 
-        //적용된 메이크업 모두 수행
-        let fullmakeButton = document.querySelector(".fullMakeButton")
-        fullmakeButton.addEventListener("click",()=>{
-            fullmake(input,output,landmarks,...lip.getColor(),...blusher.getColor());
-        })
+        // //적용된 메이크업 모두 수행
+        // let fullmakeButton = document.querySelector(".fullMakeButton")
+        // fullmakeButton.addEventListener("click",()=>{
+        //     fullmake(input,output,landmarks,...lip.getColor(),...blusher.getColor());
+        // })
     }
     
 }
@@ -42,10 +44,7 @@ Promise.all([
 
 async function start(){
     let uploadModule = document.querySelector("#myFileUpload");
-    let makeupModule = document.querySelector(".makeup");
     uploadModule.style.display = "block";
-    makeupModule.style.display = "block";
-
     console.log("loadmodel");
 }
 

@@ -93,64 +93,38 @@ export function drawLip(canvas,color="FF0000",opacity,positions){
 }
 /**
  * 브러셔 - 중앙 영역
- * @param {*} canvas 
- * @param {*} color 
- * @param {*} positions 
+ * @param {*} 그리는 영역 
+ * @param {*} 색,투명도 
+ * @param {*} 위치 
  */
-export function drawBlusher(canvas,color="FF0000",opacity,positions){
+export function drawBlusher(canvas,color,positions){
     const ctx = canvas.getContext('2d');
-    let rightX=0;
-    let rightY=0;
-    let rightRadius=0;
-    let leftX=0;
-    let leftY=0;
-    let leftRadius=0;
-    let rgbcolor = convertHex2Rgb(color);
+    let rightX=positions.rightX;
+    let rightY=positions.rightY;
+    let rightRadius=positions.rightRadius;
+    let leftX=positions.leftX;
+    let leftY=positions.leftY;
+    let leftRadius=positions.leftRadius;
+    let rgbcolor = convertHex2Rgb(color.color);
     //중앙영역
     //오른쪽
     ctx.beginPath();
-    //오른쪽 눈 기준
-        //45번 x좌표 
-    rightX=positions[45].x;
-    //오른쪽 턱
-        //y좌표는 13,14번 사이
-    rightY=(positions[13].y+positions[14].y)/2;
-    //크기
-        //x좌표 부터 13번까지의 80%거리를 반지름으로 
-    rightRadius=(positions[13].x - rightX)*0.8
     ctx.arc(rightX, rightY, rightRadius, 0, 2 * Math.PI, false);
     //색
     let grdRight = ctx.createRadialGradient(rightX, rightY, rightRadius/6, rightX,rightY,rightRadius);
-    grdRight.addColorStop(0, `rgb(${rgbcolor},${opacity})`);
+    grdRight.addColorStop(0, `rgb(${rgbcolor},${color.opacity})`);
     grdRight.addColorStop(1, `rgba(${rgbcolor},0)`);
-
     ctx.fillStyle=grdRight;
-
     ctx.fill();
-    
-    
-
     //왼쪽
     ctx.beginPath();
-    //왼쪽 눈 기준
-        //x좌표 36번
-    leftX=positions[41].x;
-    //왼쪽 볼
-        //y좌표는 2,3번 사이
-    leftY=(positions[2].y+positions[3].y)/2;
-    //크기
-        //x좌표 부터 3번까지의 80%거리를 반지름
-    leftRadius=( leftX-positions[3].x)*0.8
     ctx.arc(leftX, leftY, leftRadius, 0, 2 * Math.PI, false);
+    //왼쪽 색지정
     let grdLeft = ctx.createRadialGradient(leftX, leftY, leftRadius/6, leftX,leftY,leftRadius);
-    grdLeft.addColorStop(0, `rgb(${rgbcolor},${opacity})`);
+    grdLeft.addColorStop(0, `rgb(${rgbcolor},${color.opacity})`);
     grdLeft.addColorStop(1, `rgba(${rgbcolor},0)`);
-
     ctx.fillStyle=grdLeft;
-
     ctx.fill();
-
-    return "?";
 }
 
 function convertHex2Rgb(hex){
