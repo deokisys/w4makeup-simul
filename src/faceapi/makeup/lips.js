@@ -2,9 +2,9 @@ import { drawLip } from '../../util/draw.js';
 
 //입술의 위치를 잡는 함수
 function getLipsPosition(landmarks){
+    let topLip=[0,1,2,3,4,5,6,16,15,14,13,12];
+    let bottomLip=[7,8,9,10,11,12,0,19,18,17,16,6];
 
-    let topLip=[0,1,2,3,4,5,6,15,14,13];
-    let bottomLip=[7,8,9,10,11,12,19,18,17,16];
     
     let positions = {
         topLip:topLip.map((ele)=>{

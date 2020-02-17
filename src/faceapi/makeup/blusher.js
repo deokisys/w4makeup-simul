@@ -1,4 +1,4 @@
-import {drawBlusher ,drawMasc} from '../../util/draw.js';
+import {drawBlusher} from '../../util/draw.js';
 
 //볼의 위치, 영역을 정리하는 함수
 function getBlushPosition(landmarks){
