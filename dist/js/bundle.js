@@ -23543,27 +23543,35 @@ __webpack_require__.r(__webpack_exports__);
 
 //볼의 위치, 영역을 정리하는 함수
 function getBlushPosition(landmarks){
-    let positions = {
-        //오른쪽 눈 기준
-        //45번 x좌표 
-        rightX: landmarks[45].x,
-        //오른쪽 턱
-        //y좌표는 13,14번 사이
-        rightY: (landmarks[13].y + landmarks[14].y) / 2,
-        //크기
-        //x좌표 부터 13번까지의 80%거리를 반지름으로 
-        rightRadius: (landmarks[13].x - landmarks[45].x) * 0.8,
-        //왼쪽 눈 기준
-        //x좌표 36번
-        leftX: landmarks[41].x,
-        //왼쪽 볼
-        //y좌표는 2,3번 사이
-        leftY: (landmarks[2].y + landmarks[3].y) / 2,
-        //크기
-        //x좌표 부터 3번까지의 80%거리를 반지름
-        leftRadius: (landmarks[41].x - landmarks[3].x) * 0.8
-    }
-    return positions;
+
+    //양쪽 눈 을 이읏 선의 기울기 구하기
+    let m = (landmarks[45].y-landmarks[36].y) / (landmarks[45].x - landmarks[36].x)
+    //각 눈과 거리가 가까운 볼의 위치를 찾아냄'
+
+
+    //위에서 구한 기울기 적용하고 볼의 점에서 직선으로 적용
+    //y= mx - mx1+ y1
+    let addition = -(m*landmarks[29].x)+landmarks[29].y
+    //눈과 직각으로 만나는 부분을 볼로 정의
+    let m2=-(1/m);
+
+    // y2=m2x-m2x1+y1
+    let addition2_1= -(m2*landmarks[36].x)+landmarks[36].y// 왼쪽
+    let addition2_2= -(m2*landmarks[45].x)+landmarks[45].y// 오른쪽
+
+
+    //볼의 좌표
+    //왼쪽
+    let leftX = (addition2_1-addition)/(m-m2);
+    let leftY = m*(addition2_1-addition)/(m-m2) + addition;
+    //오른쪽
+    let rightX = (addition2_2-addition)/(m-m2);
+    let rightY = m*(addition2_2-addition)/(m-m2) + addition;
+
+    let leftRadius=Math.sqrt(Math.pow(leftX-landmarks[36].x,2)+Math.pow(leftY-landmarks[36].y,2));
+    let rightRadius=Math.sqrt(Math.pow(rightX-landmarks[45].x,2)+Math.pow(rightY-landmarks[45].y,2));
+
+    return {leftX,leftY,rightX,rightY,leftRadius,rightRadius};
 }
 
 function makeup(output,landmark){
@@ -23738,6 +23746,9 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "drawDot", function() { return drawDot; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "drawLip", function() { return drawLip; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "drawBlusher", function() { return drawBlusher; });
+/* harmony import */ var face_api_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! face-api.js */ "./node_modules/face-api.js/build/es6/index.js");
+
+
 /**
  * 이미지를 canvas에 옮겨 칠하기
  * 
@@ -23844,26 +23855,43 @@ function drawBlusher(canvas,color,positions){
     let leftY=positions.leftY;
     let leftRadius=positions.leftRadius;
     let rgbcolor = convertHex2Rgb(color.color);
+
+    // //가로줄
+    // ctx.beginPath();
+    // ctx.moveTo(0, m*0+addition);
+    // ctx.lineTo(canvas.width, m*canvas.width+addition);
+    // ctx.stroke();
+
+    // //왼쪽 세로줄
+    // ctx.beginPath();
+    // ctx.moveTo(0, m2*0+addition2_1);
+    // ctx.lineTo(1000, m2*1000+addition2_1);
+    // ctx.stroke();
+
+    // //오른쪽 세로줄
+    // ctx.beginPath();
+    // ctx.moveTo(0, m2*0+addition2_2);
+    // ctx.lineTo(1000, m2*1000+addition2_2);
+    // ctx.stroke();
+
     //중앙영역
     //오른쪽
     ctx.beginPath();
     ctx.arc(rightX, rightY, rightRadius, 0, 2 * Math.PI, false);
-    //색
-    let grdRight = ctx.createRadialGradient(rightX, rightY, rightRadius/6, rightX,rightY,rightRadius);
+    let grdRight = ctx.createRadialGradient(rightX, rightY, rightRadius*0, rightX,rightY,rightRadius*0.7);
     grdRight.addColorStop(0, `rgb(${rgbcolor},${color.opacity})`);
     grdRight.addColorStop(1, `rgba(${rgbcolor},0)`);
     ctx.fillStyle=grdRight;
     ctx.fill();
-    ctx.globalCompositeOperation = "overlay";
+
     //왼쪽
     ctx.beginPath();
     ctx.arc(leftX, leftY, leftRadius, 0, 2 * Math.PI, false);
-    //왼쪽 색지정
-    let grdLeft = ctx.createRadialGradient(leftX, leftY, leftRadius/6, leftX,leftY,leftRadius);
+    let grdLeft = ctx.createRadialGradient(leftX, leftY, leftRadius*0, leftX,leftY,leftRadius*0.7);
     grdLeft.addColorStop(0, `rgb(${rgbcolor},${color.opacity})`);
     grdLeft.addColorStop(1, `rgba(${rgbcolor},0)`);
     ctx.fillStyle=grdLeft;
-    ctx.fill();
+    ctx.fill();    
 }
 
 function convertHex2Rgb(hex){
