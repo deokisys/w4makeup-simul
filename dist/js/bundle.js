@@ -23116,6 +23116,149 @@ try {
 
 /***/ }),
 
+/***/ "./node_modules/sobel/sobel.js":
+/*!*************************************!*\
+  !*** ./node_modules/sobel/sobel.js ***!
+  \*************************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+(function(root) {
+  'use strict';
+
+  function Sobel(imageData) {
+    if (!(this instanceof Sobel)) {
+      return new Sobel(imageData);
+    }
+
+    var width = imageData.width;
+    var height = imageData.height;
+
+    var kernelX = [
+      [-1,0,1],
+      [-2,0,2],
+      [-1,0,1]
+    ];
+
+    var kernelY = [
+      [-1,-2,-1],
+      [0,0,0],
+      [1,2,1]
+    ];
+
+    var sobelData = [];
+    var grayscaleData = [];
+
+    function bindPixelAt(data) {
+      return function(x, y, i) {
+        i = i || 0;
+        return data[((width * y) + x) * 4 + i];
+      };
+    }
+
+    var data = imageData.data;
+    var pixelAt = bindPixelAt(data);
+    var x, y;
+
+    for (y = 0; y < height; y++) {
+      for (x = 0; x < width; x++) {
+        var r = pixelAt(x, y, 0);
+        var g = pixelAt(x, y, 1);
+        var b = pixelAt(x, y, 2);
+
+        var avg = (r + g + b) / 3;
+        grayscaleData.push(avg, avg, avg, 255);
+      }
+    }
+
+    pixelAt = bindPixelAt(grayscaleData);
+
+    for (y = 0; y < height; y++) {
+      for (x = 0; x < width; x++) {
+        var pixelX = (
+            (kernelX[0][0] * pixelAt(x - 1, y - 1)) +
+            (kernelX[0][1] * pixelAt(x, y - 1)) +
+            (kernelX[0][2] * pixelAt(x + 1, y - 1)) +
+            (kernelX[1][0] * pixelAt(x - 1, y)) +
+            (kernelX[1][1] * pixelAt(x, y)) +
+            (kernelX[1][2] * pixelAt(x + 1, y)) +
+            (kernelX[2][0] * pixelAt(x - 1, y + 1)) +
+            (kernelX[2][1] * pixelAt(x, y + 1)) +
+            (kernelX[2][2] * pixelAt(x + 1, y + 1))
+        );
+
+        var pixelY = (
+          (kernelY[0][0] * pixelAt(x - 1, y - 1)) +
+          (kernelY[0][1] * pixelAt(x, y - 1)) +
+          (kernelY[0][2] * pixelAt(x + 1, y - 1)) +
+          (kernelY[1][0] * pixelAt(x - 1, y)) +
+          (kernelY[1][1] * pixelAt(x, y)) +
+          (kernelY[1][2] * pixelAt(x + 1, y)) +
+          (kernelY[2][0] * pixelAt(x - 1, y + 1)) +
+          (kernelY[2][1] * pixelAt(x, y + 1)) +
+          (kernelY[2][2] * pixelAt(x + 1, y + 1))
+        );
+
+        var magnitude = Math.sqrt((pixelX * pixelX) + (pixelY * pixelY))>>>0;
+
+        sobelData.push(magnitude, magnitude, magnitude, 255);
+      }
+    }
+
+    var clampedArray = sobelData;
+
+    if (typeof Uint8ClampedArray === 'function') {
+      clampedArray = new Uint8ClampedArray(sobelData);
+    }
+
+    clampedArray.toImageData = function() {
+      return Sobel.toImageData(clampedArray, width, height);
+    };
+
+    return clampedArray;
+  }
+
+  Sobel.toImageData = function toImageData(data, width, height) {
+    if (typeof ImageData === 'function' && Object.prototype.toString.call(data) === '[object Uint16Array]') {
+      return new ImageData(data, width, height);
+    } else {
+      if (typeof window === 'object' && typeof window.document === 'object') {
+        var canvas = document.createElement('canvas');
+
+        if (typeof canvas.getContext === 'function') {
+          var context = canvas.getContext('2d');
+          var imageData = context.createImageData(width, height);
+          imageData.data.set(data);
+          return imageData;
+        } else {
+          return new FakeImageData(data, width, height);
+        }
+      } else {
+        return new FakeImageData(data, width, height);
+      }
+    }
+  };
+
+  function FakeImageData(data, width, height) {
+    return {
+      width: width,
+      height: height,
+      data: data
+    };
+  }
+
+  if (true) {
+    if ( true && module.exports) {
+      exports = module.exports = Sobel;
+    }
+    exports.Sobel = Sobel;
+  } else {}
+
+})(this);
+
+
+/***/ }),
+
 /***/ "./node_modules/timers-browserify/main.js":
 /*!************************************************!*\
   !*** ./node_modules/timers-browserify/main.js ***!
@@ -23634,7 +23777,7 @@ function lipMakeup(input,output,landmark){
     let lipsButton = document.querySelector(".lipsMakeButton");
     lipsButton.onclick = ()=> {
         Object(_util_draw_js__WEBPACK_IMPORTED_MODULE_0__["drawImg2Canvas"])(output, input);
-        Object(_lips__WEBPACK_IMPORTED_MODULE_2__["default"])(output,landmark)
+        Object(_lips__WEBPACK_IMPORTED_MODULE_2__["default"])(output,input,landmark)
     }
 
     //투명도 지정
@@ -23649,7 +23792,7 @@ function lipMakeup(input,output,landmark){
             }
             lipsOpacityButton.dataset.opacity = opacity;
             Object(_util_draw_js__WEBPACK_IMPORTED_MODULE_0__["drawImg2Canvas"])(output, input);
-            Object(_lips__WEBPACK_IMPORTED_MODULE_2__["default"])(output,landmark)
+            Object(_lips__WEBPACK_IMPORTED_MODULE_2__["default"])(output,input,landmark)
         }
         return;
     }
@@ -23659,7 +23802,7 @@ function fullMakeup(input,output,landmark){
     let fullmakeButton = document.querySelector(".fullMakeButton")
     fullmakeButton.onclick = ()=>{
         Object(_util_draw_js__WEBPACK_IMPORTED_MODULE_0__["drawImg2Canvas"])(output, input);
-        Object(_lips__WEBPACK_IMPORTED_MODULE_2__["default"])(output,landmark)
+        Object(_lips__WEBPACK_IMPORTED_MODULE_2__["default"])(output,input,landmark)
         Object(_blusher__WEBPACK_IMPORTED_MODULE_1__["default"])(output,landmark)
     }
 
@@ -23685,6 +23828,8 @@ function fullMakeup(input,output,landmark){
 __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "default", function() { return makeup; });
 /* harmony import */ var _util_draw_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../../util/draw.js */ "./src/util/draw.js");
+/* harmony import */ var sobel__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! sobel */ "./node_modules/sobel/sobel.js");
+/* harmony import */ var sobel__WEBPACK_IMPORTED_MODULE_1___default = /*#__PURE__*/__webpack_require__.n(sobel__WEBPACK_IMPORTED_MODULE_1__);
 
 
 //입술의 위치를 잡는 함수
@@ -23703,14 +23848,167 @@ function getLipsPosition(landmarks){
     }
     return positions;
 }
+function getPositionFineTunning2(canvas,landmarks){
+    var ctx = canvas.getContext('2d');
+//1차적으로 딥러닝으로 학습된 위치가 기본
+//경계선을 찾아내고, 각 포인트에서 위치를 조정하는 방식.
+//삐져 나온것을 내부로 이동하기
+
+   let leftMouthCorner=landmarks[0+48];
+    let rightMouthCorner=landmarks[6+48];
+
+    let m = (leftMouthCorner.y-rightMouthCorner.y) / (leftMouthCorner.x - rightMouthCorner.x)   //입꼬리 기울기
+
+    let leftTopX = (landmarks[4].x+leftMouthCorner.x)/2;
+    let leftTopY = m<=0?leftMouthCorner.y-20:rightMouthCorner.y-20;
+    let width =(rightMouthCorner.x + landmarks[12].x)/2-leftTopX; 
+    let height = landmarks[57].y+20 - (landmarks[33].y+landmarks[50].y)/2;
+    const imageData = ctx.getImageData(leftTopX, leftTopY, width, height);
+
+    //edge 탐색 - sobel로 경계선 탐색
+    var sobelData = sobel__WEBPACK_IMPORTED_MODULE_1___default()(imageData);
+
+    let sobelCheckData=[];
+    for(let i=0;i<sobelData.length;i+=4){//0일 수록 어둡다
+        let avg = (sobelData[i] + sobelData[i + 1] + sobelData[i + 2]) / 3;
+        sobelData[i] = avg; // red
+        sobelData[i + 1] = avg; // green
+        sobelData[i + 2] = avg; // blue
+        sobelCheckData.push(avg)
+    }
+    var checkData = [];
+    for(let i=0;i<sobelCheckData.length;i+=Math.floor(width)){
+        checkData.push(sobelCheckData.slice(i,i+Math.floor(width)));
+    }
+    //sobel 출력
+        // var sobelImageData = sobelData.toImageData();
+        // ctx.putImageData(sobelImageData, leftTopX, leftTopY);
 
 
+    let edge=40;
+    //각자 좌표별로 확인
+    let isEdge=[];
+    for(let i=48;i<68;i++){
+        let x = Math.floor(landmarks[i].x-leftTopX);
+        let y = Math.floor(landmarks[i].y-leftTopY);
+        let tmp = checkData[y][x]
+        isEdge.push(tmp)
+    }
+    //꼬리부분 무사한지 확인
+    if(!(isEdge[0]>edge||isEdge[12]>edge)&&(isEdge[6]>edge||isEdge[16]>edge)){
+        console.log("무사안함")
+        //꼬리위치 조정 필요 - 0,12 or 6,16의 위치
+    }
 
-function makeup(output,landmark){
+    let topLip=[0,1,2,3,4,5,6,16,15,14,13,12];
+    let bottomLip=[7,8,9,10,11,12,0,19,18,17,16,6];
+
+    //윗입술(49,50,51,52,53) 위아래로 이동
+        // 61,62,63 - 내부
+    //아랫입술(55,56,57,58,59) 위아래로 이동
+        // 67,66,65 - 내부
+    let positions = {
+        topLip:topLip.map((ele)=>{
+            if(ele>0&&ele<6) {
+                let tmp = pointFineTuningDown(checkData,Math.floor(landmarks[ele+48].x-leftTopX),Math.floor(landmarks[ele+48].y-leftTopY),edge)
+                return {x:tmp[0]+leftTopX,y:tmp[1]+leftTopY}
+            }
+            return {x:landmarks[ele+48].x,y:landmarks[ele+48].y}
+        }),
+        bottomLip:bottomLip.map((ele)=>{
+            if(ele>6&&ele<12) {
+                let tmp = pointFineTuningUp(checkData,Math.floor(landmarks[ele+48].x-leftTopX),Math.floor(landmarks[ele+48].y-leftTopY),edge)
+                return {x:tmp[0]+leftTopX,y:tmp[1]+leftTopY}
+            }
+            return {x:landmarks[ele+48].x,y:landmarks[ele+48].y}
+        })
+    }
+    return positions;
+   
+}
+/**
+ * 아래 방향으로 이동 / 윗입술 겉 영역
+ * 
+ * @param {*} edge가 있는 배열 
+ * @param {*} 찾은 좌표 x
+ * @param {*} 찾은 좌표 y
+ * @param {*} edge기준치
+ */
+function pointFineTuningDown(checkData,x,y,edge){
+
+    if(checkData[y][x]<edge){
+        //이미 입술의 내부로 들어왔을경우
+        for(let i=0;i<y;i++){
+            if(checkData[i][x]>edge){
+                return [x,y]
+            }
+        }
+        //입술 영역보다 벗어났을경우
+        for(let i=y;i<checkData.length;i++){
+            if(checkData[i][x]>edge){
+                return [x,i]
+            }
+        }
+    }
+    return [x,y]
+}
+
+/**
+ * 위 방향으로 이동 / 아랫입술의 겉영역
+ * 
+ * @param {*} edge가 있는 배열 
+ * @param {*} 찾은 좌표 x
+ * @param {*} 찾은 좌표 y
+ * @param {*} edge기준치
+ */
+function pointFineTuningUp(checkData,x,y,edge){
+    if(checkData[y][x]<edge){
+        //이미 입술의 내부로 들어왔을경우
+        for(let i=checkData.length-1;i>y;i--){
+            if(checkData[i][x]>edge){
+                return [x,y]
+            }
+        }
+        //입술 영역보다 벗어났을경우
+        for(let i=y;i>0;i--){
+            if(checkData[i][x]>edge){
+                return [x,i]
+            }
+        }
+    }
+    return [x,y]
+}
+function getPositionFineTunning3(canvas,input,landmarks){
+    var ctx = canvas.getContext('2d');
+
+    let leftMouthCorner=landmarks[0+48];
+    let rightMouthCorner=landmarks[6+48];
+
+    let m = (leftMouthCorner.y-rightMouthCorner.y) / (leftMouthCorner.x - rightMouthCorner.x)   //입꼬리 기울기
+
+    let leftTopX = (landmarks[4].x+leftMouthCorner.x)/2;
+    let leftTopY = m<=0?leftMouthCorner.y-20:rightMouthCorner.y-20;
+    let width =(rightMouthCorner.x + landmarks[12].x)/2-leftTopX; 
+    let height = landmarks[57].y+20 - (landmarks[33].y+landmarks[50].y)/2;
+
+    const imageData = ctx.getImageData(leftTopX, leftTopY, width, height);
+    let data = imageData.data;
+    for (let i = 0; i < data.length; i += 4) {
+        var avg = (data[i] + data[i + 1] + data[i + 2]) / 3;
+        avg = avg - avg%50
+        data[i] = avg; // red
+        data[i + 1] = avg; // green
+        data[i + 2] = avg; // blue
+    }
+    ctx.putImageData(imageData, leftTopX, leftTopY);
+}
+function makeup(output,input,landmark){
     let color=document.querySelector(".lipscolor").value;
     let opacity=document.querySelector(".lipsOpacity").dataset.opacity;
-    let positions = getLipsPosition(landmark);    
-    Object(_util_draw_js__WEBPACK_IMPORTED_MODULE_0__["drawLip"])(output, {color,opacity}, positions)
+    // let positions = getLipsPosition(landmark);    
+    let positions = getPositionFineTunning2(output,landmark)
+    // drawLip(output, {color,opacity}, positions)
+    Object(_util_draw_js__WEBPACK_IMPORTED_MODULE_0__["drawCloseLip"])(output, {color,opacity}, positions)
 }
 
 /***/ }),
@@ -23735,7 +24033,7 @@ __webpack_require__.r(__webpack_exports__);
 /*!**************************!*\
   !*** ./src/util/draw.js ***!
   \**************************/
-/*! exports provided: drawImg2Canvas, drawFacearea, drawEyes, drawDot, drawLip, drawBlusher */
+/*! exports provided: drawImg2Canvas, drawFacearea, drawEyes, drawDot, drawLip, drawCloseLip, drawBlusher */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -23745,6 +24043,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "drawEyes", function() { return drawEyes; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "drawDot", function() { return drawDot; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "drawLip", function() { return drawLip; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "drawCloseLip", function() { return drawCloseLip; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "drawBlusher", function() { return drawBlusher; });
 /* harmony import */ var face_api_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! face-api.js */ "./node_modules/face-api.js/build/es6/index.js");
 
@@ -23835,6 +24134,31 @@ function drawLip(canvas,color,positions){
             return;
         } 
         ctx.lineTo(ele.x, ele.y);
+    })
+
+    ctx.fill();
+}
+/**
+ * 닫힌 입술 그리기
+ * @param {*} canvas 
+ * @param {*} color 
+ * @param {*} positions 
+ */
+function drawCloseLip(canvas,color,positions){
+    const ctx = canvas.getContext('2d');
+
+    ctx.fillStyle=`rgba(${convertHex2Rgb(color.color)},${color.opacity})`
+    ctx.globalCompositeOperation = "overlay";
+    ctx.beginPath();
+    positions.topLip.map((ele,i)=>{
+        if(i===0){
+            ctx.moveTo(ele.x, ele.y);
+            return;
+        } 
+        if(i<=6) ctx.lineTo(ele.x, ele.y);
+    })
+    positions.bottomLip.map((ele,i)=>{
+        if(i<6) ctx.lineTo(ele.x, ele.y);
     })
 
     ctx.fill();

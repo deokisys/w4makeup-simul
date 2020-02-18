@@ -91,6 +91,31 @@ export function drawLip(canvas,color,positions){
     ctx.fill();
 }
 /**
+ * 닫힌 입술 그리기
+ * @param {*} canvas 
+ * @param {*} color 
+ * @param {*} positions 
+ */
+export function drawCloseLip(canvas,color,positions){
+    const ctx = canvas.getContext('2d');
+
+    ctx.fillStyle=`rgba(${convertHex2Rgb(color.color)},${color.opacity})`
+    ctx.globalCompositeOperation = "overlay";
+    ctx.beginPath();
+    positions.topLip.map((ele,i)=>{
+        if(i===0){
+            ctx.moveTo(ele.x, ele.y);
+            return;
+        } 
+        if(i<=6) ctx.lineTo(ele.x, ele.y);
+    })
+    positions.bottomLip.map((ele,i)=>{
+        if(i<6) ctx.lineTo(ele.x, ele.y);
+    })
+
+    ctx.fill();
+}
+/**
  * 브러셔 - 중앙 영역
  * @param {*} 그리는 영역 
  * @param {*} 색,투명도 
