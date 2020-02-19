@@ -34,7 +34,7 @@ export function lipMakeup(input,output,landmark){
     let lipsButton = document.querySelector(".lipsMakeButton");
     lipsButton.onclick = ()=> {
         drawImg2Canvas(output, input);
-        makeuplip(output,landmark)
+        makeuplip(output,input,landmark)
     }
 
     //투명도 지정
@@ -49,7 +49,7 @@ export function lipMakeup(input,output,landmark){
             }
             lipsOpacityButton.dataset.opacity = opacity;
             drawImg2Canvas(output, input);
-            makeuplip(output,landmark)
+            makeuplip(output,input,landmark)
         }
         return;
     }
@@ -59,7 +59,7 @@ export function fullMakeup(input,output,landmark){
     let fullmakeButton = document.querySelector(".fullMakeButton")
     fullmakeButton.onclick = ()=>{
         drawImg2Canvas(output, input);
-        makeuplip(output,landmark)
+        makeuplip(output,input,landmark)
         makeupblush(output,landmark)
     }
 
