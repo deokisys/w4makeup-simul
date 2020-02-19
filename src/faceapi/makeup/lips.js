@@ -1,4 +1,4 @@
-import { drawLip,drawCloseLip } from '../../util/draw.js';
+import { drawLip,drawCloseLip,drawImg2Canvas } from '../../util/draw.js';
 import Sobel from 'sobel';
 //입술의 위치를 잡는 함수
 function getLipsPosition(landmarks){
@@ -21,6 +21,7 @@ function getPositionFineTunning2(canvas,landmarks){
 //1차적으로 딥러닝으로 학습된 위치가 기본
 //경계선을 찾아내고, 각 포인트에서 위치를 조정하는 방식.
 //삐져 나온것을 내부로 이동하기
+    let edge=40;
 
     let leftMouthCorner=landmarks[0+48];
     let rightMouthCorner=landmarks[6+48];
@@ -53,7 +54,6 @@ function getPositionFineTunning2(canvas,landmarks){
         // ctx.putImageData(sobelImageData, leftTopX, leftTopY);
 
 
-    let edge=40;
     //각자 좌표별로 확인
     let isEdge=[];
     for(let i=48;i<68;i++){
@@ -78,23 +78,48 @@ function getPositionFineTunning2(canvas,landmarks){
     //아랫입술(55,56,57,58,59) 위아래로 이동
         // 67,66,65 - 내부
     let positions = {
-        topLip:topLip.map((ele)=>{
-            if(ele>0&&ele<6) {
+        topLip:topLip.map((ele,i)=>{
+            if(i>0&&i<6) {
                 let tmp = pointFineTuningDown(checkData,Math.floor(landmarks[ele+48].x-leftTopX),Math.floor(landmarks[ele+48].y-leftTopY),edge)
                 return {x:tmp[0]+leftTopX,y:tmp[1]+leftTopY}
             }
             return {x:landmarks[ele+48].x,y:landmarks[ele+48].y}
         }),
-        bottomLip:bottomLip.map((ele)=>{
-            if(ele>6&&ele<12) {
+        bottomLip:bottomLip.map((ele,i)=>{
+            // if(ele>6&&ele<12) {
+            if(i>0&&i<6) {
                 let tmp = pointFineTuningUp(checkData,Math.floor(landmarks[ele+48].x-leftTopX),Math.floor(landmarks[ele+48].y-leftTopY),edge)
                 return {x:tmp[0]+leftTopX,y:tmp[1]+leftTopY}
             }
             return {x:landmarks[ele+48].x,y:landmarks[ele+48].y}
         })
     }
+    positions = checkPositions(positions,landmarks,12.5)
     return positions;
    
+}
+/**
+ * sobel의 경계선으로부터 찾아낸 좌표를 
+ * 딥러닝의 좌표와 비교
+ * limit 이상으로 차이나는 부분은 딥러닝 좌표로 수정합니다.
+ * @param {*} positions 
+ * @param {*} landmarks 
+ * @param {*} limit 
+ */
+function checkPositions(positions,landmarks,limit){
+  for(let i=1;i<6;i++){
+      if(positions.topLip[i].y-landmarks[i+48].y>limit){
+          positions.topLip[i].y=landmarks[i+48].y;
+      }
+  }
+  for(let i=1;i<6;i++){
+    console.log(landmarks[i+48+6].y - positions.bottomLip[i-1].y)
+      if(landmarks[i+48+6].y - positions.bottomLip[i-1].y>limit){
+          positions.bottomLip[i-1].y=landmarks[i+48+6].y;
+      }
+  }
+  //
+  return positions;
 }
 /**
  * 아래 방향으로 이동 / 윗입술 겉 영역
@@ -148,35 +173,24 @@ function pointFineTuningUp(checkData,x,y,edge){
     }
     return [x,y]
 }
-function getPositionFineTunning3(canvas,input,landmarks){
-    var ctx = canvas.getContext('2d');
-
-    let leftMouthCorner=landmarks[0+48];
-    let rightMouthCorner=landmarks[6+48];
-
-    let m = (leftMouthCorner.y-rightMouthCorner.y) / (leftMouthCorner.x - rightMouthCorner.x)   //입꼬리 기울기
-
-    let leftTopX = (landmarks[4].x+leftMouthCorner.x)/2;
-    let leftTopY = m<=0?leftMouthCorner.y-20:rightMouthCorner.y-20;
-    let width =(rightMouthCorner.x + landmarks[12].x)/2-leftTopX; 
-    let height = landmarks[57].y+20 - (landmarks[33].y+landmarks[50].y)/2;
-
-    const imageData = ctx.getImageData(leftTopX, leftTopY, width, height);
-    let data = imageData.data;
-    for (let i = 0; i < data.length; i += 4) {
-        var avg = (data[i] + data[i + 1] + data[i + 2]) / 3;
-        avg = avg - avg%50
-        data[i] = avg; // red
-        data[i + 1] = avg; // green
-        data[i + 2] = avg; // blue
+function isClose(landmarks){
+    let topLip = landmarks[62].y-landmarks[51].y;
+    let lipGap = landmarks[66].y-landmarks[62].y;
+    let buttomLip = landmarks[57].y-landmarks[66].y;
+    if(buttomLip>lipGap||topLip>lipGap){
+        return true;
     }
-    ctx.putImageData(imageData, leftTopX, leftTopY);
+    return false;
 }
 export default function makeup(output,input,landmark){
     let color=document.querySelector(".lipscolor").value;
     let opacity=document.querySelector(".lipsOpacity").dataset.opacity;
-    // let positions = getLipsPosition(landmark);    
-    let positions = getPositionFineTunning2(output,landmark)
-    // drawLip(output, {color,opacity}, positions)
-    drawCloseLip(output, {color,opacity}, positions)
+    let positionsOpen = getLipsPosition(landmark);    
+    let positionsClose = getPositionFineTunning2(output,landmark)
+    drawImg2Canvas(output, input);
+    if(isClose(landmark)){
+        drawCloseLip(output, {color,opacity}, positionsClose)
+    }else{
+        drawLip(output, {color,opacity}, positionsOpen)
+    }
 }
