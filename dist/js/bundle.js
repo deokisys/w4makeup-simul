@@ -24116,7 +24116,7 @@ function drawLip(canvas,color,positions){
     const ctx = canvas.getContext('2d');
 
     ctx.fillStyle=`rgba(${convertHex2Rgb(color.color)},${color.opacity})`
-    ctx.globalCompositeOperation = "overlay";
+    ctx.globalCompositeOperation = "multiply";
     ctx.beginPath();
     positions.topLip.map((ele,i)=>{
         if(i===0){
@@ -24148,7 +24148,7 @@ function drawCloseLip(canvas,color,positions){
     const ctx = canvas.getContext('2d');
 
     ctx.fillStyle=`rgba(${convertHex2Rgb(color.color)},${color.opacity})`
-    ctx.globalCompositeOperation = "overlay";
+    ctx.globalCompositeOperation = "multiply";
     ctx.beginPath();
     positions.topLip.map((ele,i)=>{
         if(i===0){
@@ -24171,7 +24171,7 @@ function drawCloseLip(canvas,color,positions){
  */
 function drawBlusher(canvas,color,positions){
     const ctx = canvas.getContext('2d');
-    ctx.globalCompositeOperation = "overlay";
+    ctx.globalCompositeOperation = "multiply";
     let rightX=positions.rightX;
     let rightY=positions.rightY;
     let rightRadius=positions.rightRadius;
