@@ -19,9 +19,10 @@ imgUpload.onchange=async ()=>{
         const displaySize = {width:input.width,height:input.height}
         faceapi.matchDimensions(canvas, displaySize)
         faceapi.matchDimensions(output, displaySize)
-        makeupModule.style.display = "block";// 메이크업 ui 표시
         //예측
         let landmarks = await predict(input,canvas,displaySize,output);
+        if(!landmarks) return alert("얼굴을 찾지 못했습니다.")
+        makeupModule.style.display = "block";// 메이크업 ui 표시
         //부위별 메이크업 수행
         lipMakeup(input,output,landmarks)
         blushMakeup(input,output,landmarks)
@@ -56,6 +57,6 @@ async function predict(input,canvas,displaySize,output){
     //36-41 왼쪽눈
     //42-47 오른쪽눈
     //48-67 입
-    return resizeDetections[0].landmarks.positions
+    return resizeDetections.length?resizeDetections[0].landmarks.positions:false;
 }
 

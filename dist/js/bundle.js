@@ -23627,9 +23627,10 @@ imgUpload.onchange=async ()=>{
         const displaySize = {width:input.width,height:input.height}
         face_api_js__WEBPACK_IMPORTED_MODULE_1__["matchDimensions"](canvas, displaySize)
         face_api_js__WEBPACK_IMPORTED_MODULE_1__["matchDimensions"](output, displaySize)
-        makeupModule.style.display = "block";// 메이크업 ui 표시
         //예측
         let landmarks = await predict(input,canvas,displaySize,output);
+        if(!landmarks) return alert("얼굴을 찾지 못했습니다.")
+        makeupModule.style.display = "block";// 메이크업 ui 표시
         //부위별 메이크업 수행
         Object(_makeup__WEBPACK_IMPORTED_MODULE_2__["lipMakeup"])(input,output,landmarks)
         Object(_makeup__WEBPACK_IMPORTED_MODULE_2__["blushMakeup"])(input,output,landmarks)
@@ -23664,7 +23665,7 @@ async function predict(input,canvas,displaySize,output){
     //36-41 왼쪽눈
     //42-47 오른쪽눈
     //48-67 입
-    return resizeDetections[0].landmarks.positions
+    return resizeDetections.length?resizeDetections[0].landmarks.positions:false;
 }
 
 
@@ -23854,7 +23855,7 @@ function getPositionFineTunning2(canvas,landmarks){
 //경계선을 찾아내고, 각 포인트에서 위치를 조정하는 방식.
 //삐져 나온것을 내부로 이동하기
 
-   let leftMouthCorner=landmarks[0+48];
+    let leftMouthCorner=landmarks[0+48];
     let rightMouthCorner=landmarks[6+48];
 
     let m = (leftMouthCorner.y-rightMouthCorner.y) / (leftMouthCorner.x - rightMouthCorner.x)   //입꼬리 기울기
@@ -23895,9 +23896,11 @@ function getPositionFineTunning2(canvas,landmarks){
         isEdge.push(tmp)
     }
     //꼬리부분 무사한지 확인
-    if(!(isEdge[0]>edge||isEdge[12]>edge)&&(isEdge[6]>edge||isEdge[16]>edge)){
-        console.log("무사안함")
-        //꼬리위치 조정 필요 - 0,12 or 6,16의 위치
+    if(!(isEdge[0]>edge||isEdge[12]>edge)){
+        console.log("왼쪽 무사안함")
+    }
+    if(!(isEdge[6]>edge||isEdge[16]>edge)){
+        console.log("오른쪽 무사안함")
     }
 
     let topLip=[0,1,2,3,4,5,6,16,15,14,13,12];

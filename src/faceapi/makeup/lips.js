@@ -22,7 +22,7 @@ function getPositionFineTunning2(canvas,landmarks){
 //경계선을 찾아내고, 각 포인트에서 위치를 조정하는 방식.
 //삐져 나온것을 내부로 이동하기
 
-   let leftMouthCorner=landmarks[0+48];
+    let leftMouthCorner=landmarks[0+48];
     let rightMouthCorner=landmarks[6+48];
 
     let m = (leftMouthCorner.y-rightMouthCorner.y) / (leftMouthCorner.x - rightMouthCorner.x)   //입꼬리 기울기
@@ -63,9 +63,11 @@ function getPositionFineTunning2(canvas,landmarks){
         isEdge.push(tmp)
     }
     //꼬리부분 무사한지 확인
-    if(!(isEdge[0]>edge||isEdge[12]>edge)&&(isEdge[6]>edge||isEdge[16]>edge)){
-        console.log("무사안함")
-        //꼬리위치 조정 필요 - 0,12 or 6,16의 위치
+    if(!(isEdge[0]>edge||isEdge[12]>edge)){
+        console.log("왼쪽 무사안함")
+    }
+    if(!(isEdge[6]>edge||isEdge[16]>edge)){
+        console.log("오른쪽 무사안함")
     }
 
     let topLip=[0,1,2,3,4,5,6,16,15,14,13,12];
