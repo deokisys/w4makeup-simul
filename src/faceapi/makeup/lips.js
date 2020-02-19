@@ -28,9 +28,9 @@ function getPositionFineTunning2(canvas,landmarks){
     let m = (leftMouthCorner.y-rightMouthCorner.y) / (leftMouthCorner.x - rightMouthCorner.x)   //입꼬리 기울기
 
     let leftTopX = (landmarks[4].x+leftMouthCorner.x)/2;
-    let leftTopY = m<=0?leftMouthCorner.y-20:rightMouthCorner.y-20;
+    let leftTopY = ((landmarks[50].y>landmarks[52].y?landmarks[52].y:landmarks[50].y) + landmarks[33].y)/2
     let width =(rightMouthCorner.x + landmarks[12].x)/2-leftTopX; 
-    let height = landmarks[57].y+20 - (landmarks[33].y+landmarks[50].y)/2;
+    let height = (landmarks[57].y+landmarks[8].y)/2 - (landmarks[33].y+landmarks[50].y)/2;
     const imageData = ctx.getImageData(leftTopX, leftTopY, width, height);
 
     //edge 탐색 - sobel로 경계선 탐색
