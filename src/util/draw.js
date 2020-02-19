@@ -66,6 +66,7 @@ export function drawDot(canvas,...position){
  */
 export function drawLip(canvas,color,positions){
     const ctx = canvas.getContext('2d');
+    ctx.filter = 'blur(4px)';
 
     ctx.fillStyle=`rgba(${convertHex2Rgb(color.color)},${color.opacity})`
     ctx.globalCompositeOperation = "multiply";
@@ -98,7 +99,7 @@ export function drawLip(canvas,color,positions){
  */
 export function drawCloseLip(canvas,color,positions){
     const ctx = canvas.getContext('2d');
-
+    ctx.filter = 'blur(4px)';
     ctx.fillStyle=`rgba(${convertHex2Rgb(color.color)},${color.opacity})`
     ctx.globalCompositeOperation = "multiply";
     ctx.beginPath();
@@ -110,7 +111,7 @@ export function drawCloseLip(canvas,color,positions){
         if(i<=6) ctx.lineTo(ele.x, ele.y);
     })
     positions.bottomLip.map((ele,i)=>{
-        if(i<6) ctx.lineTo(ele.x, ele.y);
+        if(i<5) ctx.lineTo(ele.x, ele.y);
     })
 
     ctx.fill();
