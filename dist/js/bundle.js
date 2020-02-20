@@ -23606,8 +23606,23 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _util_draw_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../util/draw.js */ "./src/util/draw.js");
 /* harmony import */ var face_api_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! face-api.js */ "./node_modules/face-api.js/build/es6/index.js");
 /* harmony import */ var _makeup__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./makeup */ "./src/faceapi/makeup/index.js");
+/* harmony import */ var _makeup_blusher__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./makeup/blusher */ "./src/faceapi/makeup/blusher.js");
+/* harmony import */ var _makeup_lips__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./makeup/lips */ "./src/faceapi/makeup/lips.js");
 
 
+
+
+
+
+//video
+const video = document.querySelector("#video")
+function startVideo(){
+    navigator.getUserMedia(
+        {video:{}},
+        stream => video.srcObject = stream,
+        err=>console.err(err)
+    )
+}
 
 
 let imgUpload = document.querySelector("#myFileUpload");
@@ -23621,7 +23636,6 @@ imgUpload.onchange=async ()=>{
 
     //시작
     input.onload = async ()=>{
-        let makeupModule = document.querySelector(".makeup");
         const canvas = document.getElementById('canvas2');//얼굴 특징 출력
         const output = document.getElementById('output');
         const displaySize = {width:input.width,height:input.height}
@@ -23630,7 +23644,6 @@ imgUpload.onchange=async ()=>{
         //예측
         let landmarks = await predict(input,canvas,displaySize,output);
         if(!landmarks) return alert("얼굴을 찾지 못했습니다.")
-        makeupModule.style.display = "block";// 메이크업 ui 표시
         //부위별 메이크업 수행
         Object(_makeup__WEBPACK_IMPORTED_MODULE_2__["lipMakeup"])(input,output,landmarks)
         Object(_makeup__WEBPACK_IMPORTED_MODULE_2__["blushMakeup"])(input,output,landmarks)
@@ -23647,8 +23660,34 @@ Promise.all([
 
 async function start(){
     let uploadModule = document.querySelector("#myFileUpload");
+    let makeupModule = document.querySelector(".makeup");
+    makeupModule.style.display = "block";// 메이크업 ui 표시
+
     uploadModule.style.display = "block";
     console.log("loadmodel");
+
+    //video
+    startVideo();
+    video.addEventListener("play",()=>{
+        let canvasVideo = document.getElementById("videoOut");
+        const videoDisplaySize = {width:video.offsetWidth,height:video.offsetHeight}
+        face_api_js__WEBPACK_IMPORTED_MODULE_1__["matchDimensions"](canvasVideo,videoDisplaySize)
+        setInterval(async()=>{
+            let detectionVideo = await face_api_js__WEBPACK_IMPORTED_MODULE_1__["detectAllFaces"](video,new face_api_js__WEBPACK_IMPORTED_MODULE_1__["TinyFaceDetectorOptions"]())
+            .withFaceLandmarks()
+            const resizeVideoDetections = face_api_js__WEBPACK_IMPORTED_MODULE_1__["resizeResults"](detectionVideo,videoDisplaySize)
+            canvasVideo.getContext('2d').clearRect(0,0,canvasVideo.width,canvasVideo.height)
+            // faceapi.draw.drawFaceLandmarks(canvasVideo,resizeVideoDetections)
+            if(resizeVideoDetections.length){
+                let videoLandmark = resizeVideoDetections[0].landmarks.positions;
+                Object(_util_draw_js__WEBPACK_IMPORTED_MODULE_0__["drawImg2Canvas"])(canvasVideo, video);
+                Object(_makeup_lips__WEBPACK_IMPORTED_MODULE_4__["default"])(canvasVideo,video,videoLandmark)
+                Object(_makeup_blusher__WEBPACK_IMPORTED_MODULE_3__["default"])(canvasVideo,videoLandmark)
+            }
+
+            
+        },100)
+    })
 }
 
 async function predict(input,canvas,displaySize,output){

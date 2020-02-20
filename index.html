@@ -15,15 +15,12 @@
     <!-- <img id='image' src='https://img.allurekorea.com/allure/2017/04/style_58ff2afd89457-e1493117714656.jpg' crossorigin="anonymous"/> -->
     <!-- <img id='image' src='https://image.fmkorea.com/files/attach/new/20180312/486616/73972/976883040/71c8d4b3c51b611814ba0a660d9a5e78.jpg' crossorigin="anonymous"/> -->
     <!-- <img id='image' src='https://image.fmkorea.com/files/attach/new/20190114/486616/1384525028/1522271421/d990c42c90b8f2e83476c53418461750.jpg' crossorigin="anonymous"/> -->
-    <input id="myFileUpload" type="file"  style="display:none;" accept=".jpg, .jpeg, .png">
-    <img id="myImg" src="" crossorigin="anonymous">
-    
+    <div class="videoArea" style="position: relative;width:720px;height:560px;">
+        <video id="video" style="position:absolute;"width="720" height="560" autoplay muted></video>
+        <canvas id="videoOut" style="position:absolute;"> </canvas>
+    </div>
 
-    <canvas id="canvas2">
-    </canvas>
-    <canvas id="output">
-    </canvas>
-    <div class="makeup" style="display:none;" >
+    <div class="makeup" style="display:none; position:relative;" >
         <div class="lips">
             입술:
             <input class="jscolor lipscolor" value="ff0000" type="text" placeholder="입술색 지정">
@@ -49,6 +46,14 @@
             </button>
         </div>
     </div>
+    <input id="myFileUpload" type="file"  style="display:none;" accept=".jpg, .jpeg, .png">
+    <img id="myImg" src="" crossorigin="anonymous">
+    
+
+    <canvas id="canvas2">
+    </canvas>
+    <canvas id="output">
+    </canvas>
     <script src="./dist/js/bundle.js"></script>
     <script src="./src/util/jscolor.js"></script>
 </body>

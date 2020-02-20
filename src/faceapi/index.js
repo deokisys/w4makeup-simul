@@ -1,6 +1,19 @@
 import {drawImg2Canvas} from '../util/draw.js';
 import * as faceapi from 'face-api.js';
 import {blushMakeup,lipMakeup,fullMakeup} from './makeup';
+import makeupblush from './makeup/blusher';
+import makeuplip from './makeup/lips';
+
+//video
+const video = document.querySelector("#video")
+function startVideo(){
+    navigator.getUserMedia(
+        {video:{}},
+        stream => video.srcObject = stream,
+        err=>console.err(err)
+    )
+}
+
 
 let imgUpload = document.querySelector("#myFileUpload");
 imgUpload.onchange=async ()=>{
@@ -13,7 +26,6 @@ imgUpload.onchange=async ()=>{
 
     //시작
     input.onload = async ()=>{
-        let makeupModule = document.querySelector(".makeup");
         const canvas = document.getElementById('canvas2');//얼굴 특징 출력
         const output = document.getElementById('output');
         const displaySize = {width:input.width,height:input.height}
@@ -22,7 +34,6 @@ imgUpload.onchange=async ()=>{
         //예측
         let landmarks = await predict(input,canvas,displaySize,output);
         if(!landmarks) return alert("얼굴을 찾지 못했습니다.")
-        makeupModule.style.display = "block";// 메이크업 ui 표시
         //부위별 메이크업 수행
         lipMakeup(input,output,landmarks)
         blushMakeup(input,output,landmarks)
@@ -39,8 +50,34 @@ Promise.all([
 
 async function start(){
     let uploadModule = document.querySelector("#myFileUpload");
+    let makeupModule = document.querySelector(".makeup");
+    makeupModule.style.display = "block";// 메이크업 ui 표시
+
     uploadModule.style.display = "block";
     console.log("loadmodel");
+
+    //video
+    startVideo();
+    video.addEventListener("play",()=>{
+        let canvasVideo = document.getElementById("videoOut");
+        const videoDisplaySize = {width:video.offsetWidth,height:video.offsetHeight}
+        faceapi.matchDimensions(canvasVideo,videoDisplaySize)
+        setInterval(async()=>{
+            let detectionVideo = await faceapi.detectAllFaces(video,new faceapi.TinyFaceDetectorOptions())
+            .withFaceLandmarks()
+            const resizeVideoDetections = faceapi.resizeResults(detectionVideo,videoDisplaySize)
+            canvasVideo.getContext('2d').clearRect(0,0,canvasVideo.width,canvasVideo.height)
+            // faceapi.draw.drawFaceLandmarks(canvasVideo,resizeVideoDetections)
+            if(resizeVideoDetections.length){
+                let videoLandmark = resizeVideoDetections[0].landmarks.positions;
+                drawImg2Canvas(canvasVideo, video);
+                makeuplip(canvasVideo,video,videoLandmark)
+                makeupblush(canvasVideo,videoLandmark)
+            }
+
+            
+        },100)
+    })
 }
 
 async function predict(input,canvas,displaySize,output){
