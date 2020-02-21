@@ -23594,6 +23594,17 @@ module.exports = g;
 
 /***/ }),
 
+/***/ "./src/css/main.scss":
+/*!***************************!*\
+  !*** ./src/css/main.scss ***!
+  \***************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+// extracted by mini-css-extract-plugin
+
+/***/ }),
+
 /***/ "./src/faceapi/index.js":
 /*!******************************!*\
   !*** ./src/faceapi/index.js ***!
@@ -24272,14 +24283,15 @@ function convertHex2Rgb(hex){
 /***/ }),
 
 /***/ 0:
-/*!*******************************************!*\
-  !*** multi @babel/polyfill ./src/main.js ***!
-  \*******************************************/
+/*!***************************************************************!*\
+  !*** multi @babel/polyfill ./src/main.js ./src/css/main.scss ***!
+  \***************************************************************/
 /*! no static exports found */
 /***/ (function(module, exports, __webpack_require__) {
 
 __webpack_require__(/*! @babel/polyfill */"./node_modules/@babel/polyfill/lib/index.js");
-module.exports = __webpack_require__(/*! ./src/main.js */"./src/main.js");
+__webpack_require__(/*! ./src/main.js */"./src/main.js");
+module.exports = __webpack_require__(/*! ./src/css/main.scss */"./src/css/main.scss");
 
 
 /***/ }),
