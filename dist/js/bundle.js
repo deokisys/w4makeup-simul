@@ -23633,13 +23633,13 @@ imgUpload.onchange=async ()=>{
     //시작
     input.onload = async ()=>{
         let makeupModule = document.querySelector(".makeup");
-        const canvas = document.getElementById('canvas2');//얼굴 특징 출력
+        // const canvas = document.getElementById('canvas2');//얼굴 특징 출력
         const output = document.getElementById('output');
         const displaySize = {width:input.width,height:input.height}
-        face_api_js__WEBPACK_IMPORTED_MODULE_1__["matchDimensions"](canvas, displaySize)
+        // faceapi.matchDimensions(canvas, displaySize)
         face_api_js__WEBPACK_IMPORTED_MODULE_1__["matchDimensions"](output, displaySize)
         //예측
-        let landmarks = await predict(input,canvas,displaySize,output);
+        let landmarks = await predict(input,displaySize,output);
         if(!landmarks) return alert("얼굴을 찾지 못했습니다.")
         makeupModule.style.display = "block";// 메이크업 ui 표시
         //부위별 메이크업 수행
@@ -23662,13 +23662,11 @@ async function start(){
     console.log("loadmodel");
 }
 
-async function predict(input,canvas,displaySize,output){
+async function predict(input,displaySize,output){
     const detections = await face_api_js__WEBPACK_IMPORTED_MODULE_1__["detectAllFaces"](input,new face_api_js__WEBPACK_IMPORTED_MODULE_1__["TinyFaceDetectorOptions"]())
     .withFaceLandmarks()
     const resizeDetections = face_api_js__WEBPACK_IMPORTED_MODULE_1__["resizeResults"](detections,displaySize)
-    Object(_util_draw_js__WEBPACK_IMPORTED_MODULE_0__["drawImg2Canvas"])(canvas,input);//얼굴 먼저 출력
-    Object(_util_draw_js__WEBPACK_IMPORTED_MODULE_0__["drawImg2Canvas"])(output,input);
-    face_api_js__WEBPACK_IMPORTED_MODULE_1__["draw"].drawFaceLandmarks(canvas,resizeDetections)//얼굴 랜드마크들(눈썹, 눈, 코, 입, 턱선)출력
+    // faceapi.draw.drawFaceLandmarks(canvas,resizeDetections)//얼굴 랜드마크들(눈썹, 눈, 코, 입, 턱선)출력
     //0-16 턱선
     //17-21 왼쪽 눈썹
     //22-26 오른쪽 눈썹
