@@ -23614,59 +23614,110 @@ module.exports = g;
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
-/* harmony import */ var _util_draw_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../util/draw.js */ "./src/util/draw.js");
-/* harmony import */ var face_api_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! face-api.js */ "./node_modules/face-api.js/build/es6/index.js");
-/* harmony import */ var _makeup__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./makeup */ "./src/faceapi/makeup/index.js");
-/* harmony import */ var _util_imageCompairon__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../util/imageCompairon */ "./src/util/imageCompairon.js");
+/* harmony import */ var face_api_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! face-api.js */ "./node_modules/face-api.js/build/es6/index.js");
+/* harmony import */ var _makeup__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./makeup */ "./src/faceapi/makeup/index.js");
+/* harmony import */ var _util_imageCompairon__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../util/imageCompairon */ "./src/util/imageCompairon.js");
 
 
 
+Object(_util_imageCompairon__WEBPACK_IMPORTED_MODULE_2__["default"])();
+const video = document.querySelector("#video")
+const viewArea = document.querySelector(".viewer");
 
+function startVideo(){
+    let agent = navigator.userAgent.toLowerCase();
+    let option = {};
+    if(agent.indexOf("iphone") != -1){
+        option = {
+            width: { min: 1024, ideal: 1280, max: 1920 },
+            height: { min: 776, ideal: 720, max: 1080 },
+            facingMode: 'user'
+        };
+    }else{
+        option = { 
+            aspectRatio: { exact: 0.5625 },
+            facingMode: 'user'
+        };
+    }
+    navigator.mediaDevices.getUserMedia({
+        video:option,
+        audio:false
+    })
+  .then(stream => {
+    video.srcObject = stream
+    })
+  .catch(e => 
+    alert("지원되지 않는 단말입니다.")
+    );
+}
+startVideo();
 
 let imgUpload = document.querySelector("#myFileUpload");
 imgUpload.onchange=async ()=>{
     const imgFile = document.getElementById('myFileUpload').files[0]
     // create an HTMLImageElement from a Blob
-    const img = await face_api_js__WEBPACK_IMPORTED_MODULE_1__["bufferToImage"](imgFile)
+    const img = await face_api_js__WEBPACK_IMPORTED_MODULE_0__["bufferToImage"](imgFile)
     const input = document.getElementById('myImg')
     input.src = img.src
+    input.width = img.width;
+    input.height = img.height;
 
 
     //시작
     input.onload = async ()=>{
         let makeupModule = document.querySelector(".makeup");
         const output = document.getElementById('output');
+
+        //세로가 긴 경우
+        if(input.height>viewArea.offsetHeight){
+            let resize = viewArea.offsetHeight / input.height;
+            input.height = input.height * resize;
+            input.width = input.width * resize;
+        }
+        //가로가 긴 경우
+        if(input.width>viewArea.offsetWidth){
+            let resize = viewArea.offsetWidth / input.width;
+            input.height = input.height * resize;
+            input.width = input.width * resize;
+        }
+        output.style.left = `${(800 - input.width)/2}px`
+        input.style.left = `${(800 - input.width)/2}px`
+        output.style.top = `${(viewArea.offsetHeight- input.height)/2}px`
+        input.style.top = `${(viewArea.offsetHeight- input.height)/2}px`
+
         const displaySize = {width:input.width,height:input.height}
-        face_api_js__WEBPACK_IMPORTED_MODULE_1__["matchDimensions"](output, displaySize)
+        face_api_js__WEBPACK_IMPORTED_MODULE_0__["matchDimensions"](output, displaySize)
         //예측
         let landmarks = await predict(input,displaySize,output);
         if(!landmarks) return alert("얼굴을 찾지 못했습니다.")
         makeupModule.style.display = "flex";// 메이크업 ui 표시
         //부위별 메이크업 수행
-        Object(_makeup__WEBPACK_IMPORTED_MODULE_2__["lipMakeup"])(input,output,landmarks)
-        Object(_makeup__WEBPACK_IMPORTED_MODULE_2__["blushMakeup"])(input,output,landmarks)
-        Object(_makeup__WEBPACK_IMPORTED_MODULE_2__["fullMakeup"])(input,output,landmarks)
-        Object(_util_imageCompairon__WEBPACK_IMPORTED_MODULE_3__["default"])();
+        Object(_makeup__WEBPACK_IMPORTED_MODULE_1__["lipMakeup"])(input,output,landmarks)
+        Object(_makeup__WEBPACK_IMPORTED_MODULE_1__["blushMakeup"])(input,output,landmarks)
+        Object(_makeup__WEBPACK_IMPORTED_MODULE_1__["fullMakeup"])(input,output,landmarks)
+
 
     }
     
 }
 
 Promise.all([
-    face_api_js__WEBPACK_IMPORTED_MODULE_1__["nets"].faceLandmark68Net.loadFromUri('https://raw.githubusercontent.com/justadudewhohacks/face-api.js/master/weights'),//랜드마크를 찾는 모델
-    face_api_js__WEBPACK_IMPORTED_MODULE_1__["nets"].tinyFaceDetector.loadFromUri('https://raw.githubusercontent.com/justadudewhohacks/face-api.js/master/weights')//얼굴인식 기본
+    face_api_js__WEBPACK_IMPORTED_MODULE_0__["nets"].faceLandmark68Net.loadFromUri('https://raw.githubusercontent.com/justadudewhohacks/face-api.js/master/weights'),//랜드마크를 찾는 모델
+    face_api_js__WEBPACK_IMPORTED_MODULE_0__["nets"].tinyFaceDetector.loadFromUri('https://raw.githubusercontent.com/justadudewhohacks/face-api.js/master/weights')//얼굴인식 기본
 ]).then(start)
 
 async function start(){
     let uploadModule = document.querySelector("#myFileUpload");
+    let makeupModule = document.querySelector(".makeup");
+    makeupModule.style.display = "flex";// 메이크업 ui 표시
     uploadModule.style.display = "block";
     console.log("loadmodel");
 }
 
 async function predict(input,displaySize,output){
-    const detections = await face_api_js__WEBPACK_IMPORTED_MODULE_1__["detectAllFaces"](input,new face_api_js__WEBPACK_IMPORTED_MODULE_1__["TinyFaceDetectorOptions"]())
+    const detections = await face_api_js__WEBPACK_IMPORTED_MODULE_0__["detectAllFaces"](input,new face_api_js__WEBPACK_IMPORTED_MODULE_0__["TinyFaceDetectorOptions"]())
     .withFaceLandmarks()
-    const resizeDetections = face_api_js__WEBPACK_IMPORTED_MODULE_1__["resizeResults"](detections,displaySize)
+    const resizeDetections = face_api_js__WEBPACK_IMPORTED_MODULE_0__["resizeResults"](detections,displaySize)
     //0-16 턱선
     //17-21 왼쪽 눈썹
     //22-26 오른쪽 눈썹
@@ -23677,6 +23728,48 @@ async function predict(input,displaySize,output){
     return resizeDetections.length?resizeDetections[0].landmarks.positions:false;
 }
 
+let canvasVideo = document.querySelector("#changeVideo");
+let interval="";
+canvasVideo.addEventListener("click",()=>{//loadedmetadata , play
+    let imageArea = document.querySelector("._images");
+    let videoArea = document.querySelector("._videos");
+    if(imageArea.style.display==="none"){
+        videoArea.style.display="none"
+        imageArea.style.display="block"
+        video.removeEventListener("play",videoPlay,false)
+        clearInterval(interval);
+    }else{
+        videoArea.style.display="block"
+        imageArea.style.display="none" 
+            //video
+        video.addEventListener("play",videoPlay, false)
+    }
+})
+function videoPlay(){
+
+    let canvasVideo = document.getElementById("videoOut");
+
+    //
+    let resize = viewArea.offsetHeight / video.videoHeight;
+    video.width = video.videoWidth*resize;
+    video.height = video.videoHeight*resize;
+    video.style.left = `${(800 - video.width)/2}px`
+    canvasVideo.style.left = `${(800 - video.width)/2}px`
+    //
+    const videoDisplaySize = {width:video.width,height:video.height}
+    face_api_js__WEBPACK_IMPORTED_MODULE_0__["matchDimensions"](canvasVideo,videoDisplaySize)
+
+    interval = setInterval(async()=>{
+        let detectionVideo = await face_api_js__WEBPACK_IMPORTED_MODULE_0__["detectAllFaces"](video,new face_api_js__WEBPACK_IMPORTED_MODULE_0__["TinyFaceDetectorOptions"]())
+        .withFaceLandmarks()
+        const resizeVideoDetections = face_api_js__WEBPACK_IMPORTED_MODULE_0__["resizeResults"](detectionVideo,videoDisplaySize)
+        canvasVideo.getContext('2d').clearRect(0,0,videoDisplaySize.width,videoDisplaySize.height)
+        if(resizeVideoDetections.length){
+            let videoLandmark = resizeVideoDetections[0].landmarks.positions;
+            Object(_makeup__WEBPACK_IMPORTED_MODULE_1__["fullMakeup"])(video,canvasVideo,videoLandmark)
+        }            
+    },100)
+}
 
 
 /***/ }),
@@ -23871,12 +23964,12 @@ function getPositionFineTunning2(canvas, landmarks) {
         isEdge.push(tmp)
     }
     //꼬리부분 무사한지 확인
-    if (!(isEdge[0] > edge || isEdge[12] > edge)) {
-        console.log("왼쪽 무사안함")
-    }
-    if (!(isEdge[6] > edge || isEdge[16] > edge)) {
-        console.log("오른쪽 무사안함")
-    }
+    // if (!(isEdge[0] > edge || isEdge[12] > edge)) {
+    //     console.log("왼쪽 무사안함")
+    // }
+    // if (!(isEdge[6] > edge || isEdge[16] > edge)) {
+    //     console.log("오른쪽 무사안함")
+    // }
 
     let topLip = [0, 1, 2, 3, 4, 5, 6, 16, 15, 14, 13, 12];
     let bottomLip = [7, 8, 9, 10, 11, 12, 0, 19, 18, 17, 16, 6];

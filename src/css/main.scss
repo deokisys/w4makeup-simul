@@ -26,14 +26,26 @@ $buttonSizeMid:75px;
       width:100%;
       height:100%;
     }
+    img{
+      position:absolute;
+    }
+    canvas{
+      position:absolute;
+    }
   }
-  img{
-    width:$imagewidth;
-    height:$imagewidth*4/3;
-  }
-  canvas{
-    width:$imagewidth;
-    height:$imagewidth*4/3;
+  ._videos{
+    position:relative;
+    display:none;
+    width:100%;
+    height:100%;
+    #video{
+      position:absolute;
+      left:0;
+    }
+    #videoOut{
+      position:absolute;
+      left:0;
+    }
   }
   
 }

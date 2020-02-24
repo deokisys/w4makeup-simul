@@ -66,12 +66,21 @@ table {
     .viewer ._images .afterMakeup {
       width: 100%;
       height: 100%; }
-  .viewer img {
-    width: 800px;
-    height: 1066.66667px; }
-  .viewer canvas {
-    width: 800px;
-    height: 1066.66667px; }
+    .viewer ._images img {
+      position: absolute; }
+    .viewer ._images canvas {
+      position: absolute; }
+  .viewer ._videos {
+    position: relative;
+    display: none;
+    width: 100%;
+    height: 100%; }
+    .viewer ._videos #video {
+      position: absolute;
+      left: 0; }
+    .viewer ._videos #videoOut {
+      position: absolute;
+      left: 0; }
 
 .mode {
   display: flex;

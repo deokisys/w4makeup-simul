@@ -63,12 +63,12 @@ function getPositionFineTunning2(canvas, landmarks) {
         isEdge.push(tmp)
     }
     //꼬리부분 무사한지 확인
-    if (!(isEdge[0] > edge || isEdge[12] > edge)) {
-        console.log("왼쪽 무사안함")
-    }
-    if (!(isEdge[6] > edge || isEdge[16] > edge)) {
-        console.log("오른쪽 무사안함")
-    }
+    // if (!(isEdge[0] > edge || isEdge[12] > edge)) {
+    //     console.log("왼쪽 무사안함")
+    // }
+    // if (!(isEdge[6] > edge || isEdge[16] > edge)) {
+    //     console.log("오른쪽 무사안함")
+    // }
 
     let topLip = [0, 1, 2, 3, 4, 5, 6, 16, 15, 14, 13, 12];
     let bottomLip = [7, 8, 9, 10, 11, 12, 0, 19, 18, 17, 16, 6];
