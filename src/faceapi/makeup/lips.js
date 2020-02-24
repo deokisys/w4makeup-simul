@@ -210,8 +210,9 @@ function isClose(landmarks) {
     return false;
 }
 export default function makeup(output, input, landmark) {
-    let color = document.querySelector(".lipscolor").value;
-    let opacity = document.querySelector(".lipsOpacity").dataset.opacity;
+    let color = document.querySelector("#lipValue").value;
+    let opacity = document.querySelector(".lipsOpacity").value;
+    opacity = opacity/100;
     let positionsOpen = getLipsPosition(landmark);
     let positionsClose = getPositionFineTunning2(output, landmark)
     drawImg2Canvas(output, input);

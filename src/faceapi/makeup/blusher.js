@@ -34,8 +34,9 @@ function getBlushPosition(landmarks){
 }
 
 export default function makeup(output,landmark){
-    let color=document.querySelector(".blushcolor").value;
-    let opacity=document.querySelector(".blusherOpacity").dataset.opacity;
+    let color=document.querySelector("#blushValue").value;
+    let opacity=document.querySelector(".blusherOpacity").value;
+    opacity=opacity/100;
     let positions = getBlushPosition(landmark);    
     drawBlusher(output, {color,opacity}, positions)
 }

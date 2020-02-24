@@ -15,9 +15,25 @@ $buttonSizeMid:75px;
   width:$imagewidth;
   height:$imagewidth*4/3;
   margin:0 auto;
+  ._images{
+    width:100%;
+    height:100%;
+    .beforeMakeup{
+      width:100%;
+      height:100%;
+    }
+    .afterMakeup{
+      width:100%;
+      height:100%;
+    }
+  }
   img{
-    max-width:$imagewidth;
-    max-height:$imagewidth*4/3;
+    width:$imagewidth;
+    height:$imagewidth*4/3;
+  }
+  canvas{
+    width:$imagewidth;
+    height:$imagewidth*4/3;
   }
   
 }
@@ -28,44 +44,18 @@ $buttonSizeMid:75px;
 }
 //
 .file{
-  position:relative;
-  flex-grow:1;
-  height:$buttonSizeBig;
   background: url(/public/icon/folder.svg) no-repeat;
-  background-size:$buttonSizeBig auto;
-  background-position: center;
-  input{
-      position: absolute;
-      left:0;
-      top:0;
-      width:100%;
-      height:100%;
-      background-color: red;
-      opacity:0;
-  }
 }
 .videobutton{
-  position:relative;
-  flex-grow:1;
-  height:$buttonSizeBig;
   background: url(/public/icon/camera.svg) no-repeat;
-  background-size:$buttonSizeBig auto;
-  background-position: center;
-  input{
-      position: absolute;
-      left:0;
-      top:0;
-      width:100%;
-      height:100%;
-      background-color: blue;
-      opacity:0;
-  }
 }
 .makeupbutton{
+  background: url(/public/icon/beauty.svg) no-repeat;
+}
+._bigButton{
   position:relative;
   flex-grow:1;
   height:$buttonSizeBig;
-  background: url(/public/icon/beauty.svg) no-repeat;
   background-size:$buttonSizeBig auto;
   background-position: center;
   input{
@@ -83,7 +73,7 @@ $buttonSizeMid:75px;
 }
 //
 .makeup{
-    display:flex;
+    display:none;
     flex-direction: column;
 }
 
