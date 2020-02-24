@@ -23116,6 +23116,149 @@ try {
 
 /***/ }),
 
+/***/ "./node_modules/sobel/sobel.js":
+/*!*************************************!*\
+  !*** ./node_modules/sobel/sobel.js ***!
+  \*************************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+(function(root) {
+  'use strict';
+
+  function Sobel(imageData) {
+    if (!(this instanceof Sobel)) {
+      return new Sobel(imageData);
+    }
+
+    var width = imageData.width;
+    var height = imageData.height;
+
+    var kernelX = [
+      [-1,0,1],
+      [-2,0,2],
+      [-1,0,1]
+    ];
+
+    var kernelY = [
+      [-1,-2,-1],
+      [0,0,0],
+      [1,2,1]
+    ];
+
+    var sobelData = [];
+    var grayscaleData = [];
+
+    function bindPixelAt(data) {
+      return function(x, y, i) {
+        i = i || 0;
+        return data[((width * y) + x) * 4 + i];
+      };
+    }
+
+    var data = imageData.data;
+    var pixelAt = bindPixelAt(data);
+    var x, y;
+
+    for (y = 0; y < height; y++) {
+      for (x = 0; x < width; x++) {
+        var r = pixelAt(x, y, 0);
+        var g = pixelAt(x, y, 1);
+        var b = pixelAt(x, y, 2);
+
+        var avg = (r + g + b) / 3;
+        grayscaleData.push(avg, avg, avg, 255);
+      }
+    }
+
+    pixelAt = bindPixelAt(grayscaleData);
+
+    for (y = 0; y < height; y++) {
+      for (x = 0; x < width; x++) {
+        var pixelX = (
+            (kernelX[0][0] * pixelAt(x - 1, y - 1)) +
+            (kernelX[0][1] * pixelAt(x, y - 1)) +
+            (kernelX[0][2] * pixelAt(x + 1, y - 1)) +
+            (kernelX[1][0] * pixelAt(x - 1, y)) +
+            (kernelX[1][1] * pixelAt(x, y)) +
+            (kernelX[1][2] * pixelAt(x + 1, y)) +
+            (kernelX[2][0] * pixelAt(x - 1, y + 1)) +
+            (kernelX[2][1] * pixelAt(x, y + 1)) +
+            (kernelX[2][2] * pixelAt(x + 1, y + 1))
+        );
+
+        var pixelY = (
+          (kernelY[0][0] * pixelAt(x - 1, y - 1)) +
+          (kernelY[0][1] * pixelAt(x, y - 1)) +
+          (kernelY[0][2] * pixelAt(x + 1, y - 1)) +
+          (kernelY[1][0] * pixelAt(x - 1, y)) +
+          (kernelY[1][1] * pixelAt(x, y)) +
+          (kernelY[1][2] * pixelAt(x + 1, y)) +
+          (kernelY[2][0] * pixelAt(x - 1, y + 1)) +
+          (kernelY[2][1] * pixelAt(x, y + 1)) +
+          (kernelY[2][2] * pixelAt(x + 1, y + 1))
+        );
+
+        var magnitude = Math.sqrt((pixelX * pixelX) + (pixelY * pixelY))>>>0;
+
+        sobelData.push(magnitude, magnitude, magnitude, 255);
+      }
+    }
+
+    var clampedArray = sobelData;
+
+    if (typeof Uint8ClampedArray === 'function') {
+      clampedArray = new Uint8ClampedArray(sobelData);
+    }
+
+    clampedArray.toImageData = function() {
+      return Sobel.toImageData(clampedArray, width, height);
+    };
+
+    return clampedArray;
+  }
+
+  Sobel.toImageData = function toImageData(data, width, height) {
+    if (typeof ImageData === 'function' && Object.prototype.toString.call(data) === '[object Uint16Array]') {
+      return new ImageData(data, width, height);
+    } else {
+      if (typeof window === 'object' && typeof window.document === 'object') {
+        var canvas = document.createElement('canvas');
+
+        if (typeof canvas.getContext === 'function') {
+          var context = canvas.getContext('2d');
+          var imageData = context.createImageData(width, height);
+          imageData.data.set(data);
+          return imageData;
+        } else {
+          return new FakeImageData(data, width, height);
+        }
+      } else {
+        return new FakeImageData(data, width, height);
+      }
+    }
+  };
+
+  function FakeImageData(data, width, height) {
+    return {
+      width: width,
+      height: height,
+      data: data
+    };
+  }
+
+  if (true) {
+    if ( true && module.exports) {
+      exports = module.exports = Sobel;
+    }
+    exports.Sobel = Sobel;
+  } else {}
+
+})(this);
+
+
+/***/ }),
+
 /***/ "./node_modules/timers-browserify/main.js":
 /*!************************************************!*\
   !*** ./node_modules/timers-browserify/main.js ***!
@@ -23484,9 +23627,10 @@ imgUpload.onchange=async ()=>{
         const displaySize = {width:input.width,height:input.height}
         face_api_js__WEBPACK_IMPORTED_MODULE_1__["matchDimensions"](canvas, displaySize)
         face_api_js__WEBPACK_IMPORTED_MODULE_1__["matchDimensions"](output, displaySize)
-        makeupModule.style.display = "block";// 메이크업 ui 표시
         //예측
         let landmarks = await predict(input,canvas,displaySize,output);
+        if(!landmarks) return alert("얼굴을 찾지 못했습니다.")
+        makeupModule.style.display = "block";// 메이크업 ui 표시
         //부위별 메이크업 수행
         Object(_makeup__WEBPACK_IMPORTED_MODULE_2__["lipMakeup"])(input,output,landmarks)
         Object(_makeup__WEBPACK_IMPORTED_MODULE_2__["blushMakeup"])(input,output,landmarks)
@@ -23521,7 +23665,7 @@ async function predict(input,canvas,displaySize,output){
     //36-41 왼쪽눈
     //42-47 오른쪽눈
     //48-67 입
-    return resizeDetections[0].landmarks.positions
+    return resizeDetections.length?resizeDetections[0].landmarks.positions:false;
 }
 
 
@@ -23543,27 +23687,35 @@ __webpack_require__.r(__webpack_exports__);
 
 //볼의 위치, 영역을 정리하는 함수
 function getBlushPosition(landmarks){
-    let positions = {
-        //오른쪽 눈 기준
-        //45번 x좌표 
-        rightX: landmarks[45].x,
-        //오른쪽 턱
-        //y좌표는 13,14번 사이
-        rightY: (landmarks[13].y + landmarks[14].y) / 2,
-        //크기
-        //x좌표 부터 13번까지의 80%거리를 반지름으로 
-        rightRadius: (landmarks[13].x - landmarks[45].x) * 0.8,
-        //왼쪽 눈 기준
-        //x좌표 36번
-        leftX: landmarks[41].x,
-        //왼쪽 볼
-        //y좌표는 2,3번 사이
-        leftY: (landmarks[2].y + landmarks[3].y) / 2,
-        //크기
-        //x좌표 부터 3번까지의 80%거리를 반지름
-        leftRadius: (landmarks[41].x - landmarks[3].x) * 0.8
-    }
-    return positions;
+
+    //양쪽 눈 을 이읏 선의 기울기 구하기
+    let m = (landmarks[45].y-landmarks[36].y) / (landmarks[45].x - landmarks[36].x)
+    //각 눈과 거리가 가까운 볼의 위치를 찾아냄'
+
+
+    //위에서 구한 기울기 적용하고 볼의 점에서 직선으로 적용
+    //y= mx - mx1+ y1
+    let addition = -(m*landmarks[29].x)+landmarks[29].y
+    //눈과 직각으로 만나는 부분을 볼로 정의
+    let m2=-(1/m);
+
+    // y2=m2x-m2x1+y1
+    let addition2_1= -(m2*landmarks[36].x)+landmarks[36].y// 왼쪽
+    let addition2_2= -(m2*landmarks[45].x)+landmarks[45].y// 오른쪽
+
+
+    //볼의 좌표
+    //왼쪽
+    let leftX = (addition2_1-addition)/(m-m2);
+    let leftY = m*(addition2_1-addition)/(m-m2) + addition;
+    //오른쪽
+    let rightX = (addition2_2-addition)/(m-m2);
+    let rightY = m*(addition2_2-addition)/(m-m2) + addition;
+
+    let leftRadius=Math.sqrt(Math.pow(leftX-landmarks[36].x,2)+Math.pow(leftY-landmarks[36].y,2));
+    let rightRadius=Math.sqrt(Math.pow(rightX-landmarks[45].x,2)+Math.pow(rightY-landmarks[45].y,2));
+
+    return {leftX,leftY,rightX,rightY,leftRadius,rightRadius};
 }
 
 function makeup(output,landmark){
@@ -23598,14 +23750,14 @@ __webpack_require__.r(__webpack_exports__);
 function blushMakeup(input,output,landmark){
     //색 지정
     let blusherButton = document.querySelector(".blusherMakeButton");
-    blusherButton.addEventListener("click", function () {
+    blusherButton.onclick = () =>{
         Object(_util_draw_js__WEBPACK_IMPORTED_MODULE_0__["drawImg2Canvas"])(output, input);
         Object(_blusher__WEBPACK_IMPORTED_MODULE_1__["default"])(output,landmark)
-    })
+    }
 
     //투명도 지정
     let blusherOpacityButton = document.querySelector(".blusherOpacity");
-    blusherOpacityButton.addEventListener("click", function (evt) {
+    blusherOpacityButton.onclick = (evt) => {
         if (evt.target.tagName === "BUTTON") {
             let opacity = Number(blusherOpacityButton.dataset.opacity);
             if (evt.target.classList.contains("heavy")) {
@@ -23618,20 +23770,20 @@ function blushMakeup(input,output,landmark){
             Object(_blusher__WEBPACK_IMPORTED_MODULE_1__["default"])(output,landmark)
         }
         return;
-    })
+    }
 }
 
 function lipMakeup(input,output,landmark){
     //색 지정
     let lipsButton = document.querySelector(".lipsMakeButton");
-    lipsButton.addEventListener("click", function () {
+    lipsButton.onclick = ()=> {
         Object(_util_draw_js__WEBPACK_IMPORTED_MODULE_0__["drawImg2Canvas"])(output, input);
-        Object(_lips__WEBPACK_IMPORTED_MODULE_2__["default"])(output,landmark)
-    })
+        Object(_lips__WEBPACK_IMPORTED_MODULE_2__["default"])(output,input,landmark)
+    }
 
     //투명도 지정
     let lipsOpacityButton = document.querySelector(".lipsOpacity");
-    lipsOpacityButton.addEventListener("click", function (evt) {
+    lipsOpacityButton.onclick =(evt) =>{
         if (evt.target.tagName === "BUTTON") {
             let opacity = Number(lipsOpacityButton.dataset.opacity);
             if (evt.target.classList.contains("heavy")) {
@@ -23641,19 +23793,26 @@ function lipMakeup(input,output,landmark){
             }
             lipsOpacityButton.dataset.opacity = opacity;
             Object(_util_draw_js__WEBPACK_IMPORTED_MODULE_0__["drawImg2Canvas"])(output, input);
-            Object(_lips__WEBPACK_IMPORTED_MODULE_2__["default"])(output,landmark)
+            Object(_lips__WEBPACK_IMPORTED_MODULE_2__["default"])(output,input,landmark)
         }
         return;
-    })
+    }
 }
 function fullMakeup(input,output,landmark){
     //적용된 메이크업 모두 수행
     let fullmakeButton = document.querySelector(".fullMakeButton")
-    fullmakeButton.addEventListener("click",()=>{
+    fullmakeButton.onclick = ()=>{
         Object(_util_draw_js__WEBPACK_IMPORTED_MODULE_0__["drawImg2Canvas"])(output, input);
-        Object(_lips__WEBPACK_IMPORTED_MODULE_2__["default"])(output,landmark)
+        Object(_lips__WEBPACK_IMPORTED_MODULE_2__["default"])(output,input,landmark)
         Object(_blusher__WEBPACK_IMPORTED_MODULE_1__["default"])(output,landmark)
-    })
+    }
+
+    //지우기
+    let resetButton = document.querySelector(".resetButton")
+    resetButton.onclick = ()=>{
+        Object(_util_draw_js__WEBPACK_IMPORTED_MODULE_0__["drawImg2Canvas"])(output, input);
+    }
+    
 }
 
 
@@ -23670,32 +23829,230 @@ function fullMakeup(input,output,landmark){
 __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "default", function() { return makeup; });
 /* harmony import */ var _util_draw_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../../util/draw.js */ "./src/util/draw.js");
+/* harmony import */ var sobel__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! sobel */ "./node_modules/sobel/sobel.js");
+/* harmony import */ var sobel__WEBPACK_IMPORTED_MODULE_1___default = /*#__PURE__*/__webpack_require__.n(sobel__WEBPACK_IMPORTED_MODULE_1__);
 
 
 //입술의 위치를 잡는 함수
-function getLipsPosition(landmarks){
+function getLipsPosition(landmarks) {
+    let topLip = [0, 1, 2, 3, 4, 5, 6, 16, 15, 14, 13, 12];
+    let bottomLip = [7, 8, 9, 10, 11, 12, 0, 19, 18, 17, 16, 6];
 
-    let topLip=[0,1,2,3,4,5,6,15,14,13];
-    let bottomLip=[7,8,9,10,11,12,19,18,17,16];
-    
+
     let positions = {
-        topLip:topLip.map((ele)=>{
-            return {x:landmarks[ele+48].x,y:landmarks[ele+48].y}
+        topLip: topLip.map((ele) => {
+            return { x: landmarks[ele + 48].x, y: landmarks[ele + 48].y }
         }),
-        bottomLip:bottomLip.map((ele)=>{
-            return {x:landmarks[ele+48].x,y:landmarks[ele+48].y}
+        bottomLip: bottomLip.map((ele) => {
+            return { x: landmarks[ele + 48].x, y: landmarks[ele + 48].y }
         })
     }
     return positions;
 }
+function getPositionFineTunning2(canvas, landmarks) {
+    var ctx = canvas.getContext('2d');
+    //1차적으로 딥러닝으로 학습된 위치가 기본
+    //경계선을 찾아내고, 각 포인트에서 위치를 조정하는 방식.
+    //삐져 나온것을 내부로 이동하기
+    let edge = 40;
+
+    let leftMouthCorner = landmarks[0 + 48];
+    let rightMouthCorner = landmarks[6 + 48];
+
+    let m = (leftMouthCorner.y - rightMouthCorner.y) / (leftMouthCorner.x - rightMouthCorner.x)   //입꼬리 기울기
+
+    let leftTopX = (landmarks[4].x + leftMouthCorner.x) / 2;
+    let leftTopY = ((landmarks[50].y > landmarks[52].y ? landmarks[52].y : landmarks[50].y) + landmarks[33].y) / 2
+    let width = (rightMouthCorner.x + landmarks[12].x) / 2 - leftTopX;
+    let height = (landmarks[57].y + landmarks[8].y) / 2 - (landmarks[33].y + landmarks[50].y) / 2;
+    const imageData = ctx.getImageData(leftTopX, leftTopY, width, height);
+
+    //edge 탐색 - sobel로 경계선 탐색
+    var sobelData = sobel__WEBPACK_IMPORTED_MODULE_1___default()(imageData);
+
+    let sobelCheckData = [];
+    for (let i = 0; i < sobelData.length; i += 4) {//0일 수록 어둡다
+        let avg = (sobelData[i] + sobelData[i + 1] + sobelData[i + 2]) / 3;
+        sobelData[i] = avg; // red
+        sobelData[i + 1] = avg; // green
+        sobelData[i + 2] = avg; // blue
+        sobelCheckData.push(avg)
+    }
+    var checkData = [];
+    for (let i = 0; i < sobelCheckData.length; i += Math.floor(width)) {
+        checkData.push(sobelCheckData.slice(i, i + Math.floor(width)));
+    }
+    //sobel 출력
+    // var sobelImageData = sobelData.toImageData();
+    // ctx.putImageData(sobelImageData, leftTopX, leftTopY);
 
 
+    //각자 좌표별로 확인
+    let isEdge = [];
+    for (let i = 48; i < 68; i++) {
+        let x = Math.floor(landmarks[i].x - leftTopX);
+        let y = Math.floor(landmarks[i].y - leftTopY);
+        let tmp = checkData[y][x]
+        isEdge.push(tmp)
+    }
+    //꼬리부분 무사한지 확인
+    if (!(isEdge[0] > edge || isEdge[12] > edge)) {
+        console.log("왼쪽 무사안함")
+    }
+    if (!(isEdge[6] > edge || isEdge[16] > edge)) {
+        console.log("오른쪽 무사안함")
+    }
 
-function makeup(output,landmark){
-    let color=document.querySelector(".lipscolor").value;
-    let opacity=document.querySelector(".lipsOpacity").dataset.opacity;
-    let positions = getLipsPosition(landmark);    
-    Object(_util_draw_js__WEBPACK_IMPORTED_MODULE_0__["drawLip"])(output, {color,opacity}, positions)
+    let topLip = [0, 1, 2, 3, 4, 5, 6, 16, 15, 14, 13, 12];
+    let bottomLip = [7, 8, 9, 10, 11, 12, 0, 19, 18, 17, 16, 6];
+
+    //윗입술(49,50,51,52,53) 위아래로 이동
+    // 61,62,63 - 내부
+    //아랫입술(55,56,57,58,59) 위아래로 이동
+    // 67,66,65 - 내부
+    let positions = {
+        topLip: topLip.map((ele, i) => {
+            if (i > 0 && i < 6) {
+                let tmp = pointFineTuningDown(checkData, Math.floor(landmarks[ele + 48].x - leftTopX), Math.floor(landmarks[ele + 48].y - leftTopY), edge)
+                return { x: tmp[0] + leftTopX, y: tmp[1] + leftTopY }
+            }
+            return { x: landmarks[ele + 48].x, y: landmarks[ele + 48].y }
+        }),
+        bottomLip: bottomLip.map((ele, i) => {
+            // if(ele>6&&ele<12) {
+            if (i > 0 && i < 6) {
+                let tmp = pointFineTuningUp(checkData, Math.floor(landmarks[ele + 48].x - leftTopX), Math.floor(landmarks[ele + 48].y - leftTopY), edge)
+                return { x: tmp[0] + leftTopX, y: tmp[1] + leftTopY }
+            }
+            return { x: landmarks[ele + 48].x, y: landmarks[ele + 48].y }
+        })
+    }
+    positions = checkPositions(positions, landmarks, 12.5)
+    return positions;
+
+}
+/**
+ * sobel의 경계선으로부터 찾아낸 좌표를 
+ * 딥러닝의 좌표와 비교
+ * 1. limit 이상으로 차이나는 부분 딥러닝 좌표로 수정합니다.
+ * 2. 아랫입술에 대해서는 경계선을통해 찾은 좌표가 완만한 언덕모양이 아닌경우, 딥러닝 좌표로 수정합니다.
+ * @param {*} positions 
+ * @param {*} landmarks 
+ * @param {*} limit 
+ */
+function checkPositions(positions, landmarks, limit) {
+    let tmp = 0;
+    for (let i = 1; i < 6; i++) {
+        if (positions.topLip[i].y - landmarks[i + 48].y > limit) {
+            positions.topLip[i].y = landmarks[i + 48].y;
+        }
+    }
+    //bottom right 0<1<2
+    tmp = positions.bottomLip[0].y
+    for (let i = 2; i <= 3; i++) {
+        if (positions.bottomLip[i - 1].y < tmp) {
+            positions.bottomLip[i - 1].y = landmarks[i + 48 + 6].y;
+        }
+        tmp = positions.bottomLip[i - 1].y;
+    }
+    //button left 2>3>4
+    tmp = positions.bottomLip[2].y
+    for (let i = 3; i < 6; i++) {
+        if (positions.bottomLip[i - 1].y > tmp) {
+            positions.bottomLip[i - 1].y = landmarks[i + 48 + 6].y;
+        }
+        tmp = positions.bottomLip[i - 1].y;
+    }
+    //bottom left 4<3<2
+    tmp = positions.bottomLip[4].y
+    for (let i = 4; i > 2; i--) {
+        if (positions.bottomLip[i - 1].y < tmp) {
+            positions.bottomLip[i - 1].y = landmarks[i + 48 + 6].y;
+        }
+        tmp = positions.bottomLip[i - 1].y;
+    }
+    //button right 2>1>0
+    tmp = positions.bottomLip[2].y
+    for (let i = 2; i >0; i--) {
+        if (positions.bottomLip[i - 1].y > tmp) {
+            positions.bottomLip[i - 1].y = landmarks[i + 48 + 6].y;
+        }
+        tmp = positions.bottomLip[i - 1].y;
+    }
+    return positions;
+}
+/**
+ * 아래 방향으로 이동 / 윗입술 겉 영역
+ * 
+ * @param {*} edge가 있는 배열 
+ * @param {*} 찾은 좌표 x
+ * @param {*} 찾은 좌표 y
+ * @param {*} edge기준치
+ */
+function pointFineTuningDown(checkData, x, y, edge) {
+
+    if (checkData[y][x] < edge) {
+        //이미 입술의 내부로 들어왔을경우
+        for (let i = 0; i < y; i++) {
+            if (checkData[i][x] > edge) {
+                return [x, y]
+            }
+        }
+        //입술 영역보다 벗어났을경우
+        for (let i = y; i < checkData.length; i++) {
+            if (checkData[i][x] > edge) {
+                return [x, i]
+            }
+        }
+    }
+    return [x, y]
+}
+
+/**
+ * 위 방향으로 이동 / 아랫입술의 겉영역
+ * 
+ * @param {*} edge가 있는 배열 
+ * @param {*} 찾은 좌표 x
+ * @param {*} 찾은 좌표 y
+ * @param {*} edge기준치
+ */
+function pointFineTuningUp(checkData, x, y, edge) {
+    if (checkData[y][x] < edge) {
+        //이미 입술의 내부로 들어왔을경우
+        for (let i = checkData.length - 1; i > y; i--) {
+            if (checkData[i][x] > edge) {
+                return [x, y]
+            }
+        }
+        //입술 영역보다 벗어났을경우
+        for (let i = y; i > 0; i--) {
+            if (checkData[i][x] > edge) {
+                return [x, i]
+            }
+        }
+    }
+    return [x, y]
+}
+function isClose(landmarks) {
+    let topLip = landmarks[62].y - landmarks[51].y;
+    let lipGap = landmarks[66].y - landmarks[62].y;
+    let buttomLip = landmarks[57].y - landmarks[66].y;
+    if (buttomLip > lipGap || topLip > lipGap) {
+        return true;
+    }
+    return false;
+}
+function makeup(output, input, landmark) {
+    let color = document.querySelector(".lipscolor").value;
+    let opacity = document.querySelector(".lipsOpacity").dataset.opacity;
+    let positionsOpen = getLipsPosition(landmark);
+    let positionsClose = getPositionFineTunning2(output, landmark)
+    Object(_util_draw_js__WEBPACK_IMPORTED_MODULE_0__["drawImg2Canvas"])(output, input);
+    if (isClose(landmark)) {
+        Object(_util_draw_js__WEBPACK_IMPORTED_MODULE_0__["drawCloseLip"])(output, { color, opacity }, positionsClose)
+    } else {
+        Object(_util_draw_js__WEBPACK_IMPORTED_MODULE_0__["drawLip"])(output, { color, opacity }, positionsOpen)
+    }
 }
 
 /***/ }),
@@ -23720,7 +24077,7 @@ __webpack_require__.r(__webpack_exports__);
 /*!**************************!*\
   !*** ./src/util/draw.js ***!
   \**************************/
-/*! exports provided: drawImg2Canvas, drawFacearea, drawEyes, drawDot, drawLip, drawBlusher */
+/*! exports provided: drawImg2Canvas, drawFacearea, drawEyes, drawDot, drawLip, drawCloseLip, drawBlusher */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -23730,7 +24087,11 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "drawEyes", function() { return drawEyes; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "drawDot", function() { return drawDot; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "drawLip", function() { return drawLip; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "drawCloseLip", function() { return drawCloseLip; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "drawBlusher", function() { return drawBlusher; });
+/* harmony import */ var face_api_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! face-api.js */ "./node_modules/face-api.js/build/es6/index.js");
+
+
 /**
  * 이미지를 canvas에 옮겨 칠하기
  * 
@@ -23797,8 +24158,10 @@ function drawDot(canvas,...position){
  */
 function drawLip(canvas,color,positions){
     const ctx = canvas.getContext('2d');
+    ctx.filter = 'blur(4px)';
 
     ctx.fillStyle=`rgba(${convertHex2Rgb(color.color)},${color.opacity})`
+    ctx.globalCompositeOperation = "multiply";
     ctx.beginPath();
     positions.topLip.map((ele,i)=>{
         if(i===0){
@@ -23819,7 +24182,31 @@ function drawLip(canvas,color,positions){
     })
 
     ctx.fill();
-    return ctx;
+}
+/**
+ * 닫힌 입술 그리기
+ * @param {*} canvas 
+ * @param {*} color 
+ * @param {*} positions 
+ */
+function drawCloseLip(canvas,color,positions){
+    const ctx = canvas.getContext('2d');
+    ctx.filter = 'blur(4px)';
+    ctx.fillStyle=`rgba(${convertHex2Rgb(color.color)},${color.opacity})`
+    ctx.globalCompositeOperation = "multiply";
+    ctx.beginPath();
+    positions.topLip.map((ele,i)=>{
+        if(i===0){
+            ctx.moveTo(ele.x, ele.y);
+            return;
+        } 
+        if(i<=6) ctx.lineTo(ele.x, ele.y);
+    })
+    positions.bottomLip.map((ele,i)=>{
+        if(i<5) ctx.lineTo(ele.x, ele.y);
+    })
+
+    ctx.fill();
 }
 /**
  * 브러셔 - 중앙 영역
@@ -23829,6 +24216,7 @@ function drawLip(canvas,color,positions){
  */
 function drawBlusher(canvas,color,positions){
     const ctx = canvas.getContext('2d');
+    ctx.globalCompositeOperation = "multiply";
     let rightX=positions.rightX;
     let rightY=positions.rightY;
     let rightRadius=positions.rightRadius;
@@ -23836,25 +24224,43 @@ function drawBlusher(canvas,color,positions){
     let leftY=positions.leftY;
     let leftRadius=positions.leftRadius;
     let rgbcolor = convertHex2Rgb(color.color);
+
+    // //가로줄
+    // ctx.beginPath();
+    // ctx.moveTo(0, m*0+addition);
+    // ctx.lineTo(canvas.width, m*canvas.width+addition);
+    // ctx.stroke();
+
+    // //왼쪽 세로줄
+    // ctx.beginPath();
+    // ctx.moveTo(0, m2*0+addition2_1);
+    // ctx.lineTo(1000, m2*1000+addition2_1);
+    // ctx.stroke();
+
+    // //오른쪽 세로줄
+    // ctx.beginPath();
+    // ctx.moveTo(0, m2*0+addition2_2);
+    // ctx.lineTo(1000, m2*1000+addition2_2);
+    // ctx.stroke();
+
     //중앙영역
     //오른쪽
     ctx.beginPath();
     ctx.arc(rightX, rightY, rightRadius, 0, 2 * Math.PI, false);
-    //색
-    let grdRight = ctx.createRadialGradient(rightX, rightY, rightRadius/6, rightX,rightY,rightRadius);
+    let grdRight = ctx.createRadialGradient(rightX, rightY, rightRadius*0, rightX,rightY,rightRadius*0.7);
     grdRight.addColorStop(0, `rgb(${rgbcolor},${color.opacity})`);
     grdRight.addColorStop(1, `rgba(${rgbcolor},0)`);
     ctx.fillStyle=grdRight;
     ctx.fill();
+
     //왼쪽
     ctx.beginPath();
     ctx.arc(leftX, leftY, leftRadius, 0, 2 * Math.PI, false);
-    //왼쪽 색지정
-    let grdLeft = ctx.createRadialGradient(leftX, leftY, leftRadius/6, leftX,leftY,leftRadius);
+    let grdLeft = ctx.createRadialGradient(leftX, leftY, leftRadius*0, leftX,leftY,leftRadius*0.7);
     grdLeft.addColorStop(0, `rgb(${rgbcolor},${color.opacity})`);
     grdLeft.addColorStop(1, `rgba(${rgbcolor},0)`);
     ctx.fillStyle=grdLeft;
-    ctx.fill();
+    ctx.fill();    
 }
 
 function convertHex2Rgb(hex){

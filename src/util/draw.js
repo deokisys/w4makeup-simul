@@ -1,3 +1,5 @@
+import { draw } from "face-api.js";
+
 /**
  * 이미지를 canvas에 옮겨 칠하기
  * 
@@ -64,8 +66,10 @@ export function drawDot(canvas,...position){
  */
 export function drawLip(canvas,color,positions){
     const ctx = canvas.getContext('2d');
+    ctx.filter = 'blur(4px)';
 
     ctx.fillStyle=`rgba(${convertHex2Rgb(color.color)},${color.opacity})`
+    ctx.globalCompositeOperation = "multiply";
     ctx.beginPath();
     positions.topLip.map((ele,i)=>{
         if(i===0){
@@ -86,7 +90,31 @@ export function drawLip(canvas,color,positions){
     })
 
     ctx.fill();
-    return ctx;
+}
+/**
+ * 닫힌 입술 그리기
+ * @param {*} canvas 
+ * @param {*} color 
+ * @param {*} positions 
+ */
+export function drawCloseLip(canvas,color,positions){
+    const ctx = canvas.getContext('2d');
+    ctx.filter = 'blur(4px)';
+    ctx.fillStyle=`rgba(${convertHex2Rgb(color.color)},${color.opacity})`
+    ctx.globalCompositeOperation = "multiply";
+    ctx.beginPath();
+    positions.topLip.map((ele,i)=>{
+        if(i===0){
+            ctx.moveTo(ele.x, ele.y);
+            return;
+        } 
+        if(i<=6) ctx.lineTo(ele.x, ele.y);
+    })
+    positions.bottomLip.map((ele,i)=>{
+        if(i<5) ctx.lineTo(ele.x, ele.y);
+    })
+
+    ctx.fill();
 }
 /**
  * 브러셔 - 중앙 영역
@@ -96,6 +124,7 @@ export function drawLip(canvas,color,positions){
  */
 export function drawBlusher(canvas,color,positions){
     const ctx = canvas.getContext('2d');
+    ctx.globalCompositeOperation = "multiply";
     let rightX=positions.rightX;
     let rightY=positions.rightY;
     let rightRadius=positions.rightRadius;
@@ -103,25 +132,43 @@ export function drawBlusher(canvas,color,positions){
     let leftY=positions.leftY;
     let leftRadius=positions.leftRadius;
     let rgbcolor = convertHex2Rgb(color.color);
+
+    // //가로줄
+    // ctx.beginPath();
+    // ctx.moveTo(0, m*0+addition);
+    // ctx.lineTo(canvas.width, m*canvas.width+addition);
+    // ctx.stroke();
+
+    // //왼쪽 세로줄
+    // ctx.beginPath();
+    // ctx.moveTo(0, m2*0+addition2_1);
+    // ctx.lineTo(1000, m2*1000+addition2_1);
+    // ctx.stroke();
+
+    // //오른쪽 세로줄
+    // ctx.beginPath();
+    // ctx.moveTo(0, m2*0+addition2_2);
+    // ctx.lineTo(1000, m2*1000+addition2_2);
+    // ctx.stroke();
+
     //중앙영역
     //오른쪽
     ctx.beginPath();
     ctx.arc(rightX, rightY, rightRadius, 0, 2 * Math.PI, false);
-    //색
-    let grdRight = ctx.createRadialGradient(rightX, rightY, rightRadius/6, rightX,rightY,rightRadius);
+    let grdRight = ctx.createRadialGradient(rightX, rightY, rightRadius*0, rightX,rightY,rightRadius*0.7);
     grdRight.addColorStop(0, `rgb(${rgbcolor},${color.opacity})`);
     grdRight.addColorStop(1, `rgba(${rgbcolor},0)`);
     ctx.fillStyle=grdRight;
     ctx.fill();
+
     //왼쪽
     ctx.beginPath();
     ctx.arc(leftX, leftY, leftRadius, 0, 2 * Math.PI, false);
-    //왼쪽 색지정
-    let grdLeft = ctx.createRadialGradient(leftX, leftY, leftRadius/6, leftX,leftY,leftRadius);
+    let grdLeft = ctx.createRadialGradient(leftX, leftY, leftRadius*0, leftX,leftY,leftRadius*0.7);
     grdLeft.addColorStop(0, `rgb(${rgbcolor},${color.opacity})`);
     grdLeft.addColorStop(1, `rgba(${rgbcolor},0)`);
     ctx.fillStyle=grdLeft;
-    ctx.fill();
+    ctx.fill();    
 }
 
 function convertHex2Rgb(hex){
