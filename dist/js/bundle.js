@@ -24159,6 +24159,8 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "drawCloseLip", function() { return drawCloseLip; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "drawBlusher", function() { return drawBlusher; });
 /* harmony import */ var face_api_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! face-api.js */ "./node_modules/face-api.js/build/es6/index.js");
+/* harmony import */ var _equation_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./equation.js */ "./src/util/equation.js");
+
 
 
 /**
@@ -24260,8 +24262,21 @@ function drawLip(canvas,color,positions){
  */
 function drawCloseLip(canvas,color,positions){
     const ctx = canvas.getContext('2d');
-    ctx.filter = 'blur(4px)';
-    ctx.fillStyle=`rgba(${convertHex2Rgb(color.color)},${color.opacity})`
+    ctx.save();
+    let center = {
+        x:(positions.topLip[3].x+positions.bottomLip[2].x)/2,
+        y:(positions.topLip[3].y+positions.bottomLip[2].y)/2
+    }
+    let radiusX = _equation_js__WEBPACK_IMPORTED_MODULE_1__["default"].getDistant(positions.topLip[0].x,positions.topLip[0].y,positions.topLip[6].x,positions.topLip[6].y)/2;
+    let radiusY = _equation_js__WEBPACK_IMPORTED_MODULE_1__["default"].getDistant(positions.topLip[3].x,positions.topLip[3].y,positions.bottomLip[2].x,positions.bottomLip[2].y)/2;
+
+    let rgbcolor = convertHex2Rgb(color.color);
+    let grd = ctx.createRadialGradient(center.x, center.y, 0, center.x, center.y,radiusX*0.8);
+
+    grd.addColorStop(0, `rgb(${rgbcolor},${color.opacity})`);
+    grd.addColorStop(0.4, `rgb(${rgbcolor},${color.opacity})`);
+    grd.addColorStop(1, `rgba(${rgbcolor},0)`);
+    ctx.fillStyle=grd
     ctx.globalCompositeOperation = "multiply";
     ctx.beginPath();
     positions.topLip.map((ele,i)=>{
@@ -24274,8 +24289,9 @@ function drawCloseLip(canvas,color,positions){
     positions.bottomLip.map((ele,i)=>{
         if(i<5) ctx.lineTo(ele.x, ele.y);
     })
-
+    ctx.transform(1,0,0,radiusY/radiusX,0,center.y-center.y*(radiusY/radiusX));
     ctx.fill();
+    ctx.restore(); 
 }
 /**
  * 브러셔 - 중앙 영역
@@ -24314,22 +24330,42 @@ function drawBlusher(canvas,color,positions){
 
     //중앙영역
     //오른쪽
+
+
+    let blushDegree = 25;
+
+    ctx.save();
+    ctx.translate(rightX, rightY);
+    ctx.rotate((Math.PI / 180) * -blushDegree);
+    ctx.translate(-rightX, -rightY); // 예전 위치로 이동하기
+
     ctx.beginPath();
     ctx.arc(rightX, rightY, rightRadius, 0, 2 * Math.PI, false);
     let grdRight = ctx.createRadialGradient(rightX, rightY, rightRadius*0, rightX,rightY,rightRadius*0.7);
     grdRight.addColorStop(0, `rgb(${rgbcolor},${color.opacity})`);
     grdRight.addColorStop(1, `rgba(${rgbcolor},0)`);
     ctx.fillStyle=grdRight;
+    ctx.transform(1,0,0,0.7,0,rightY-rightY*(0.7));
     ctx.fill();
+    ctx.restore(); 
 
-    //왼쪽
+
+    // //왼쪽
+    ctx.save();
+    ctx.translate(leftX, leftY);
+    ctx.rotate((Math.PI / 180) * blushDegree);
+    ctx.translate(-leftX, -leftY); // 예전 위치로 이동하기
+
     ctx.beginPath();
     ctx.arc(leftX, leftY, leftRadius, 0, 2 * Math.PI, false);
     let grdLeft = ctx.createRadialGradient(leftX, leftY, leftRadius*0, leftX,leftY,leftRadius*0.7);
     grdLeft.addColorStop(0, `rgb(${rgbcolor},${color.opacity})`);
     grdLeft.addColorStop(1, `rgba(${rgbcolor},0)`);
     ctx.fillStyle=grdLeft;
+    ctx.transform(1,0,0,0.7,0,leftY-leftY*(0.7));
     ctx.fill();    
+    ctx.restore(); 
+
 }
 
 function convertHex2Rgb(hex){
@@ -24337,6 +24373,88 @@ function convertHex2Rgb(hex){
     let result = regex.exec(hex);
     return result ? `${parseInt(result[1], 16)},${parseInt(result[2], 16)},${parseInt(result[3], 16)}`: null;
 }
+
+/***/ }),
+
+/***/ "./src/util/equation.js":
+/*!******************************!*\
+  !*** ./src/util/equation.js ***!
+  \******************************/
+/*! exports provided: default */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/**
+ * 4개의 좌표의 교차점
+ * 
+ * @param {*} x1 
+ * @param {*} y1 
+ * @param {*} x2 
+ * @param {*} y2 
+ * @param {*} X1 
+ * @param {*} Y1 
+ * @param {*} X2 
+ * @param {*} Y2 
+ */
+function getIntersectPoint(x1,y1,x2,y2,X1,Y1,X2,Y2){
+    let m1 = getGradient(x1,y1,x2,y2);
+    let c1 = getConstant(m1,x1,y1);
+    let m2 = getGradient(X1,Y1,X2,Y2);
+    let c2 = getConstant(m2,X1,Y1);
+    return getIntersectPointLine(m1,c1,m2,c2)
+}
+
+/**
+ * y=m1x+c1과 y=m2x+c2의 교점
+ * 
+ * @param {*} m1 
+ * @param {*} c1 
+ * @param {*} m2 
+ * @param {*} c2 
+ */
+function getIntersectPointLine(m1,c1,m2,c2){
+    let x = -(c1-c2)/(m1-m2)
+    let y = m1*(-(c1-c2)/(m1-m2))+c1
+    return {x,y}
+}
+
+/**
+ * 두 직선의 기울기
+ * 
+ * @param {*} x1 
+ * @param {*} y1 
+ * @param {*} x2 
+ * @param {*} y2 
+ */
+function getGradient(x1,y1,x2,y2){
+    return (y1-y2) / (x1 - x2);
+}
+
+/**
+ * 기울기와 x,y를 통해 상수c 구하기
+ * y=mx+c
+ * @param {*} m 
+ * @param {*} x 
+ * @param {*} y 
+ */
+function getConstant(m,x,y){
+    return -(m*x)+ y;
+}
+
+/**
+ * 두 직선의 거리 구하기
+ * 
+ * @param {*} x1 
+ * @param {*} y1 
+ * @param {*} x2 
+ * @param {*} y2 
+ */
+function getDistant(x1,y1,x2,y2){
+    return Math.sqrt(Math.pow(x1-x2,2)+Math.pow(y1-y2,2));
+}
+
+/* harmony default export */ __webpack_exports__["default"] = ({getIntersectPoint,getGradient, getConstant, getDistant});
 
 /***/ }),
 
