@@ -1,34 +1,40 @@
 import {drawBlusher} from '../../util/draw.js';
+import equation from '../../util/equation';
+import getlandmark from '../../util/landmark';
+
 
 //볼의 위치, 영역을 정리하는 함수
 function getBlushPosition(landmarks){
-
+    let leftEyeEdge = getlandmark.getLeftEyePositions(landmarks)[0];
+    let rightEyeEdge = getlandmark.getRightEyePositions(landmarks)[3];
+    let nosePositions = getlandmark.getNosePositions(landmarks);
     //양쪽 눈 을 이읏 선의 기울기 구하기
-    let m = (landmarks[45].y-landmarks[36].y) / (landmarks[45].x - landmarks[36].x)
-    //각 눈과 거리가 가까운 볼의 위치를 찾아냄'
+    let horizonGradient = equation.getGradient(rightEyeEdge.x,rightEyeEdge.y,leftEyeEdge.x,leftEyeEdge.y);
 
 
-    //위에서 구한 기울기 적용하고 볼의 점에서 직선으로 적용
-    //y= mx - mx1+ y1
-    let addition = -(m*landmarks[29].x)+landmarks[29].y
-    //눈과 직각으로 만나는 부분을 볼로 정의
-    let m2=-(1/m);
+    //콧등을 얼굴의 중심으로 하여 가로의 기울기가 지나는 상수 구하기
+    let horizonConstant = equation.getConstant(horizonGradient,nosePositions[2].x,nosePositions[2].y);
 
-    // y2=m2x-m2x1+y1
-    let addition2_1= -(m2*landmarks[36].x)+landmarks[36].y// 왼쪽
-    let addition2_2= -(m2*landmarks[45].x)+landmarks[45].y// 오른쪽
+    //얼굴의 세로 기울기
+    let verticalGradient=-(1/horizonGradient);
+
+    //왼쪽, 오른쪽 눈의 끝 좌표로부터 세로기울기의 상수 구하기.
+    let leftEyeConstant= equation.getConstant(verticalGradient,leftEyeEdge.x,leftEyeEdge.y);// 왼쪽
+    let rightEyeConstant= equation.getConstant(verticalGradient,rightEyeEdge.x,rightEyeEdge.y);// 오른쪽
 
 
     //볼의 좌표
     //왼쪽
-    let leftX = (addition2_1-addition)/(m-m2);
-    let leftY = m*(addition2_1-addition)/(m-m2) + addition;
+    let leftPoint = equation.getIntersectPointLine(horizonGradient,horizonConstant,verticalGradient,leftEyeConstant)
     //오른쪽
-    let rightX = (addition2_2-addition)/(m-m2);
-    let rightY = m*(addition2_2-addition)/(m-m2) + addition;
+    let rightPoint = equation.getIntersectPointLine(horizonGradient,horizonConstant,verticalGradient,rightEyeConstant)
+    let leftX = leftPoint.x;
+    let leftY = leftPoint.y;
+    let rightX = rightPoint.x;
+    let rightY = rightPoint.y;
 
-    let leftRadius=Math.sqrt(Math.pow(leftX-landmarks[36].x,2)+Math.pow(leftY-landmarks[36].y,2));
-    let rightRadius=Math.sqrt(Math.pow(rightX-landmarks[45].x,2)+Math.pow(rightY-landmarks[45].y,2));
+    let leftRadius=equation.getDistant(leftPoint.x,leftPoint.y,leftEyeEdge.x,leftEyeEdge.y);
+    let rightRadius=equation.getDistant(rightPoint.x,rightPoint.y,rightEyeEdge.x,rightEyeEdge.y);
 
     return {leftX,leftY,rightX,rightY,leftRadius,rightRadius};
 }
