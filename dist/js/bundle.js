@@ -24330,22 +24330,42 @@ function drawBlusher(canvas,color,positions){
 
     //중앙영역
     //오른쪽
+
+
+    let blushDegree = 25;
+
+    ctx.save();
+    ctx.translate(rightX, rightY);
+    ctx.rotate((Math.PI / 180) * -blushDegree);
+    ctx.translate(-rightX, -rightY); // 예전 위치로 이동하기
+
     ctx.beginPath();
     ctx.arc(rightX, rightY, rightRadius, 0, 2 * Math.PI, false);
     let grdRight = ctx.createRadialGradient(rightX, rightY, rightRadius*0, rightX,rightY,rightRadius*0.7);
     grdRight.addColorStop(0, `rgb(${rgbcolor},${color.opacity})`);
     grdRight.addColorStop(1, `rgba(${rgbcolor},0)`);
     ctx.fillStyle=grdRight;
+    ctx.transform(1,0,0,0.7,0,rightY-rightY*(0.7));
     ctx.fill();
+    ctx.restore(); 
 
-    //왼쪽
+
+    // //왼쪽
+    ctx.save();
+    ctx.translate(leftX, leftY);
+    ctx.rotate((Math.PI / 180) * blushDegree);
+    ctx.translate(-leftX, -leftY); // 예전 위치로 이동하기
+
     ctx.beginPath();
     ctx.arc(leftX, leftY, leftRadius, 0, 2 * Math.PI, false);
     let grdLeft = ctx.createRadialGradient(leftX, leftY, leftRadius*0, leftX,leftY,leftRadius*0.7);
     grdLeft.addColorStop(0, `rgb(${rgbcolor},${color.opacity})`);
     grdLeft.addColorStop(1, `rgba(${rgbcolor},0)`);
     ctx.fillStyle=grdLeft;
+    ctx.transform(1,0,0,0.7,0,leftY-leftY*(0.7));
     ctx.fill();    
+    ctx.restore(); 
+
 }
 
 function convertHex2Rgb(hex){
