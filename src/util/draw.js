@@ -1,4 +1,5 @@
 import { draw } from "face-api.js";
+import equation from './equation.js';
 
 /**
  * 이미지를 canvas에 옮겨 칠하기
@@ -99,8 +100,21 @@ export function drawLip(canvas,color,positions){
  */
 export function drawCloseLip(canvas,color,positions){
     const ctx = canvas.getContext('2d');
-    ctx.filter = 'blur(4px)';
-    ctx.fillStyle=`rgba(${convertHex2Rgb(color.color)},${color.opacity})`
+    ctx.save();
+    let center = {
+        x:(positions.topLip[3].x+positions.bottomLip[2].x)/2,
+        y:(positions.topLip[3].y+positions.bottomLip[2].y)/2
+    }
+    let radiusX = equation.getDistant(positions.topLip[0].x,positions.topLip[0].y,positions.topLip[6].x,positions.topLip[6].y)/2;
+    let radiusY = equation.getDistant(positions.topLip[3].x,positions.topLip[3].y,positions.bottomLip[2].x,positions.bottomLip[2].y)/2;
+
+    let rgbcolor = convertHex2Rgb(color.color);
+    let grd = ctx.createRadialGradient(center.x, center.y, 0, center.x, center.y,radiusX*0.8);
+
+    grd.addColorStop(0, `rgb(${rgbcolor},${color.opacity})`);
+    grd.addColorStop(0.4, `rgb(${rgbcolor},${color.opacity})`);
+    grd.addColorStop(1, `rgba(${rgbcolor},0)`);
+    ctx.fillStyle=grd
     ctx.globalCompositeOperation = "multiply";
     ctx.beginPath();
     positions.topLip.map((ele,i)=>{
@@ -113,8 +127,9 @@ export function drawCloseLip(canvas,color,positions){
     positions.bottomLip.map((ele,i)=>{
         if(i<5) ctx.lineTo(ele.x, ele.y);
     })
-
+    ctx.transform(1,0,0,radiusY/radiusX,0,center.y-center.y*(radiusY/radiusX));
     ctx.fill();
+    ctx.restore(); 
 }
 /**
  * 브러셔 - 중앙 영역
