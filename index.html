@@ -2,55 +2,79 @@
 <html lang="ko">
 <head>
     <meta charset="utf-8">
-
-    <!-- Load TensorFlow.js
-    <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs-core"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs-converter"></script>
-    -->
-    <!-- blazeface api -->
-    <!-- <script src="https://cdn.jsdelivr.net/npm/@tensorflow-models/blazeface"></script> -->
-    <title>face</title>
+    <link rel="stylesheet" href="./dist/css/style.css">
+    <title>intern_face_서준배</title>
 </head>
 <body>
-    <!-- <img id='image' src='https://img.allurekorea.com/allure/2017/04/style_58ff2afd89457-e1493117714656.jpg' crossorigin="anonymous"/> -->
-    <!-- <img id='image' src='https://image.fmkorea.com/files/attach/new/20180312/486616/73972/976883040/71c8d4b3c51b611814ba0a660d9a5e78.jpg' crossorigin="anonymous"/> -->
-    <!-- <img id='image' src='https://image.fmkorea.com/files/attach/new/20190114/486616/1384525028/1522271421/d990c42c90b8f2e83476c53418461750.jpg' crossorigin="anonymous"/> -->
-    <input id="myFileUpload" type="file"  style="display:none;" accept=".jpg, .jpeg, .png">
-    <img id="myImg" src="" crossorigin="anonymous">
-    
+    <div class="makeup_wrap">
+        <div class="viewer">
+            <div class="videoArea _videos">
+                <video id="video"autoplay muted playsinline></video>
+                <canvas id="videoOut"> </canvas>
+            </div>
+            <div class="img-comp-container _images">
+                <div class="beforeMakeup img-comp-img">
+                    <img id="myImg"  crossorigin="anonymous">
+                </div>
+                <div class="afterMakeup img-comp-img img-comp-overlay">
+                    <canvas id="output"></canvas>
+                </div>
+            </div>
+           
+        </div>
 
-    <canvas id="canvas2">
-    </canvas>
-    <canvas id="output">
-    </canvas>
-    <div class="makeup" style="display:none;" >
-        <div class="lips">
-            입술:
-            <input class="jscolor lipscolor" value="ff0000" type="text" placeholder="입술색 지정">
-            <button class="lipsMakeButton">확인</button>
-            <div class="lipsOpacity"  data-opacity=0.6>
-                <button class="heavy">진하게</button>
-                <button class="light">투명하게</button>
+        <div class="mode">
+            <div class="file hoverGreen _bigButton">
+                <input id="myFileUpload" type="file" accept=".jpg, .jpeg, .png">
+            </div>
+            <div class="videobutton hoverGreen _bigButton">
+                <input id="changeVideo" type="button" value="영상">
+            </div>
+            <div class="makeupbutton hoverGreen _bigButton">
+                <input id="modemakeup" type="button" value="메이크업">
             </div>
         </div>
-        <div class="blush">
-            볼-중앙:
-            <input class="jscolor blushcolor" value="ff0000" type="text" placeholder="블러셔 중앙영역 색 지정">
-            <button class="blusherMakeButton">확인</button>
-            <div class="blusherOpacity" data-opacity=0.6>
-                <button class="heavy">진하게</button>
-                <button class="light">투명하게</button>
+        <div class="makeup">
+            <div class="lips _makeupPart">
+                <div class="_icon_wrap">
+                    <img class="_icon" src='/public/icon/inclined-lipstick.svg'>
+                    <span>입술</span>
+                </div>
+                <div class="_color_pick">
+                    <div id='lipPreview' class="_preview">
+                        <button class="jscolor
+                        {valueElement:'lipValue', styleElement:'lipPreview',value:'ff6699'}">
+                        </button>
+                    </div>
+                    <input type="text" id="lipValue" class="_color_value">
+                </div>
+                <div class="_opacity">
+                    <input type="range" min="1" max="100" value="50" class="slider lipsOpacity">
+                    <span>- 밝기 +</span>
+                </div>
             </div>
-        </div>
-        <div class="fullmake">
-            <button class="fullMakeButton">같이 보기
-            </button>
-            <button class="resetButton">지우기
-            </button>
+            <div class="blush _makeupPart">
+                <div class="_icon_wrap">
+                    <img class="_icon" src='/public/icon/makeup.svg'>
+                    <span>볼터치</span>
+                </div>
+                <div class="_color_pick">
+                    <div id='blushPreview' class="_preview">
+                        <button class="jscolor
+                        {valueElement:'blushValue', styleElement:'blushPreview',value:'ff6699'}">
+                        </button>
+                    </div>
+                    <input type="text" id="blushValue" class="_color_value">
+                </div>
+                <div class="_opacity">
+                    <input type="range" min="1" max="100" value="50" class="slider blusherOpacity">
+                    <span>- 밝기 +</span>
+                </div>
+            </div>
         </div>
     </div>
     <script src="./dist/js/bundle.js"></script>
-    <script src="./src/util/jscolor.js"></script>
+    <script src="./src/util/jscolor.js"></script> 
 </body>
 
 </html>

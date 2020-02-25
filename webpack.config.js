@@ -4,11 +4,11 @@ const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 module.exports = {
     // enntry file
     // - sass가 존재할경우 entry: ['@babel/polyfill', './main.js', './main.scss'],
-    entry: ['@babel/polyfill', './src/main.js'],
+    entry: ['@babel/polyfill', './src/main.js','./src/css/main.scss'],
     // 컴파일 + 번들링된 js 파일이 저장될 경로와 이름 지정
     output: {
-        path: path.resolve(__dirname, 'dist/js'),
-        filename: 'bundle.js'
+        path: path.resolve(__dirname, 'dist'),
+        filename: 'js/bundle.js'
     },
     plugins: [
         // 컴파일 + 번들링 CSS 파일이 저장될 경로와 이름 지정

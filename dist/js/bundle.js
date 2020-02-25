@@ -23594,6 +23594,17 @@ module.exports = g;
 
 /***/ }),
 
+/***/ "./src/css/main.scss":
+/*!***************************!*\
+  !*** ./src/css/main.scss ***!
+  \***************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+// extracted by mini-css-extract-plugin
+
+/***/ }),
+
 /***/ "./src/faceapi/index.js":
 /*!******************************!*\
   !*** ./src/faceapi/index.js ***!
@@ -23603,61 +23614,110 @@ module.exports = g;
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
-/* harmony import */ var _util_draw_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../util/draw.js */ "./src/util/draw.js");
-/* harmony import */ var face_api_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! face-api.js */ "./node_modules/face-api.js/build/es6/index.js");
-/* harmony import */ var _makeup__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./makeup */ "./src/faceapi/makeup/index.js");
+/* harmony import */ var face_api_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! face-api.js */ "./node_modules/face-api.js/build/es6/index.js");
+/* harmony import */ var _makeup__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./makeup */ "./src/faceapi/makeup/index.js");
+/* harmony import */ var _util_imageCompairon__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../util/imageCompairon */ "./src/util/imageCompairon.js");
 
 
 
+Object(_util_imageCompairon__WEBPACK_IMPORTED_MODULE_2__["default"])();
+const video = document.querySelector("#video")
+const viewArea = document.querySelector(".viewer");
+
+function startVideo(){
+    let agent = navigator.userAgent.toLowerCase();
+    let option = {};
+    if(agent.indexOf("iphone") != -1){
+        option = {
+            width: { min: 1024, ideal: 1280, max: 1920 },
+            height: { min: 776, ideal: 720, max: 1080 },
+            facingMode: 'user'
+        };
+    }else{
+        option = { 
+            aspectRatio: { exact: 0.5625 },
+            facingMode: 'user'
+        };
+    }
+    navigator.mediaDevices.getUserMedia({
+        video:option,
+        audio:false
+    })
+  .then(stream => {
+    video.srcObject = stream
+    })
+  .catch(e => 
+    alert("지원되지 않는 단말입니다.")
+    );
+}
+startVideo();
 
 let imgUpload = document.querySelector("#myFileUpload");
 imgUpload.onchange=async ()=>{
     const imgFile = document.getElementById('myFileUpload').files[0]
     // create an HTMLImageElement from a Blob
-    const img = await face_api_js__WEBPACK_IMPORTED_MODULE_1__["bufferToImage"](imgFile)
+    const img = await face_api_js__WEBPACK_IMPORTED_MODULE_0__["bufferToImage"](imgFile)
     const input = document.getElementById('myImg')
     input.src = img.src
+    input.width = img.width;
+    input.height = img.height;
 
 
     //시작
     input.onload = async ()=>{
         let makeupModule = document.querySelector(".makeup");
-        const canvas = document.getElementById('canvas2');//얼굴 특징 출력
         const output = document.getElementById('output');
-        const displaySize = {width:input.width,height:input.height}
-        face_api_js__WEBPACK_IMPORTED_MODULE_1__["matchDimensions"](canvas, displaySize)
-        face_api_js__WEBPACK_IMPORTED_MODULE_1__["matchDimensions"](output, displaySize)
-        //예측
-        let landmarks = await predict(input,canvas,displaySize,output);
-        if(!landmarks) return alert("얼굴을 찾지 못했습니다.")
-        makeupModule.style.display = "block";// 메이크업 ui 표시
-        //부위별 메이크업 수행
-        Object(_makeup__WEBPACK_IMPORTED_MODULE_2__["lipMakeup"])(input,output,landmarks)
-        Object(_makeup__WEBPACK_IMPORTED_MODULE_2__["blushMakeup"])(input,output,landmarks)
 
-        Object(_makeup__WEBPACK_IMPORTED_MODULE_2__["fullMakeup"])(input,output,landmarks)
+        //세로가 긴 경우
+        if(input.height>viewArea.offsetHeight){
+            let resize = viewArea.offsetHeight / input.height;
+            input.height = input.height * resize;
+            input.width = input.width * resize;
+        }
+        //가로가 긴 경우
+        if(input.width>viewArea.offsetWidth){
+            let resize = viewArea.offsetWidth / input.width;
+            input.height = input.height * resize;
+            input.width = input.width * resize;
+        }
+        output.style.left = `${(800 - input.width)/2}px`
+        input.style.left = `${(800 - input.width)/2}px`
+        output.style.top = `${(viewArea.offsetHeight- input.height)/2}px`
+        input.style.top = `${(viewArea.offsetHeight- input.height)/2}px`
+
+        const displaySize = {width:input.width,height:input.height}
+        face_api_js__WEBPACK_IMPORTED_MODULE_0__["matchDimensions"](output, displaySize)
+        //예측
+        let landmarks = await predict(input,displaySize,output);
+        if(!landmarks) return alert("얼굴을 찾지 못했습니다.")
+        makeupModule.style.display = "flex";// 메이크업 ui 표시
+        //부위별 메이크업 수행
+        Object(_makeup__WEBPACK_IMPORTED_MODULE_1__["lipMakeup"])(input,output,landmarks)
+        Object(_makeup__WEBPACK_IMPORTED_MODULE_1__["blushMakeup"])(input,output,landmarks)
+        Object(_makeup__WEBPACK_IMPORTED_MODULE_1__["fullMakeup"])(input,output,landmarks)
+
+
     }
     
 }
 
 Promise.all([
-    face_api_js__WEBPACK_IMPORTED_MODULE_1__["nets"].faceLandmark68Net.loadFromUri('https://raw.githubusercontent.com/justadudewhohacks/face-api.js/master/weights'),//랜드마크를 찾는 모델
-    face_api_js__WEBPACK_IMPORTED_MODULE_1__["nets"].tinyFaceDetector.loadFromUri('https://raw.githubusercontent.com/justadudewhohacks/face-api.js/master/weights')//얼굴인식 기본
+    face_api_js__WEBPACK_IMPORTED_MODULE_0__["nets"].faceLandmark68Net.loadFromUri('https://raw.githubusercontent.com/justadudewhohacks/face-api.js/master/weights'),//랜드마크를 찾는 모델
+    face_api_js__WEBPACK_IMPORTED_MODULE_0__["nets"].tinyFaceDetector.loadFromUri('https://raw.githubusercontent.com/justadudewhohacks/face-api.js/master/weights')//얼굴인식 기본
 ]).then(start)
 
 async function start(){
     let uploadModule = document.querySelector("#myFileUpload");
+    let makeupModule = document.querySelector(".makeup");
+    makeupModule.style.display = "flex";// 메이크업 ui 표시
     uploadModule.style.display = "block";
     console.log("loadmodel");
 }
 
-async function predict(input,canvas,displaySize,output){
-    const detections = await face_api_js__WEBPACK_IMPORTED_MODULE_1__["detectAllFaces"](input,new face_api_js__WEBPACK_IMPORTED_MODULE_1__["TinyFaceDetectorOptions"]())
+async function predict(input,displaySize,output){
+    const detections = await face_api_js__WEBPACK_IMPORTED_MODULE_0__["detectAllFaces"](input,new face_api_js__WEBPACK_IMPORTED_MODULE_0__["TinyFaceDetectorOptions"]())
     .withFaceLandmarks()
-    const resizeDetections = face_api_js__WEBPACK_IMPORTED_MODULE_1__["resizeResults"](detections,displaySize)
-    Object(_util_draw_js__WEBPACK_IMPORTED_MODULE_0__["drawImg2Canvas"])(canvas,input);//얼굴 먼저 출력
-    Object(_util_draw_js__WEBPACK_IMPORTED_MODULE_0__["drawImg2Canvas"])(output,input);
-    face_api_js__WEBPACK_IMPORTED_MODULE_1__["draw"].drawFaceLandmarks(canvas,resizeDetections)//얼굴 랜드마크들(눈썹, 눈, 코, 입, 턱선)출력
+    const resizeDetections = face_api_js__WEBPACK_IMPORTED_MODULE_0__["resizeResults"](detections,displaySize)
     //0-16 턱선
     //17-21 왼쪽 눈썹
     //22-26 오른쪽 눈썹
@@ -23668,6 +23728,48 @@ async function predict(input,canvas,displaySize,output){
     return resizeDetections.length?resizeDetections[0].landmarks.positions:false;
 }
 
+let canvasVideo = document.querySelector("#changeVideo");
+let interval="";
+canvasVideo.addEventListener("click",()=>{//loadedmetadata , play
+    let imageArea = document.querySelector("._images");
+    let videoArea = document.querySelector("._videos");
+    if(imageArea.style.display==="none"){
+        videoArea.style.display="none"
+        imageArea.style.display="block"
+        video.removeEventListener("play",videoPlay,false)
+        clearInterval(interval);
+    }else{
+        videoArea.style.display="block"
+        imageArea.style.display="none" 
+            //video
+        video.addEventListener("play",videoPlay, false)
+    }
+})
+function videoPlay(){
+
+    let canvasVideo = document.getElementById("videoOut");
+
+    //
+    let resize = viewArea.offsetHeight / video.videoHeight;
+    video.width = video.videoWidth*resize;
+    video.height = video.videoHeight*resize;
+    video.style.left = `${(800 - video.width)/2}px`
+    canvasVideo.style.left = `${(800 - video.width)/2}px`
+    //
+    const videoDisplaySize = {width:video.width,height:video.height}
+    face_api_js__WEBPACK_IMPORTED_MODULE_0__["matchDimensions"](canvasVideo,videoDisplaySize)
+
+    interval = setInterval(async()=>{
+        let detectionVideo = await face_api_js__WEBPACK_IMPORTED_MODULE_0__["detectAllFaces"](video,new face_api_js__WEBPACK_IMPORTED_MODULE_0__["TinyFaceDetectorOptions"]())
+        .withFaceLandmarks()
+        const resizeVideoDetections = face_api_js__WEBPACK_IMPORTED_MODULE_0__["resizeResults"](detectionVideo,videoDisplaySize)
+        canvasVideo.getContext('2d').clearRect(0,0,videoDisplaySize.width,videoDisplaySize.height)
+        if(resizeVideoDetections.length){
+            let videoLandmark = resizeVideoDetections[0].landmarks.positions;
+            Object(_makeup__WEBPACK_IMPORTED_MODULE_1__["fullMakeup"])(video,canvasVideo,videoLandmark)
+        }            
+    },100)
+}
 
 
 /***/ }),
@@ -23719,8 +23821,9 @@ function getBlushPosition(landmarks){
 }
 
 function makeup(output,landmark){
-    let color=document.querySelector(".blushcolor").value;
-    let opacity=document.querySelector(".blusherOpacity").dataset.opacity;
+    let color=document.querySelector("#blushValue").value;
+    let opacity=document.querySelector(".blusherOpacity").value;
+    opacity=opacity/100;
     let positions = getBlushPosition(landmark);    
     Object(_util_draw_js__WEBPACK_IMPORTED_MODULE_0__["drawBlusher"])(output, {color,opacity}, positions)
 }
@@ -23749,70 +23852,35 @@ __webpack_require__.r(__webpack_exports__);
 
 function blushMakeup(input,output,landmark){
     //색 지정
-    let blusherButton = document.querySelector(".blusherMakeButton");
-    blusherButton.onclick = () =>{
-        Object(_util_draw_js__WEBPACK_IMPORTED_MODULE_0__["drawImg2Canvas"])(output, input);
-        Object(_blusher__WEBPACK_IMPORTED_MODULE_1__["default"])(output,landmark)
-    }
+    let blusherColor = document.querySelector("#blushValue");
+    blusherColor.addEventListener("change",()=>{
+        fullMakeup(input,output,landmark)
+    })
 
     //투명도 지정
     let blusherOpacityButton = document.querySelector(".blusherOpacity");
-    blusherOpacityButton.onclick = (evt) => {
-        if (evt.target.tagName === "BUTTON") {
-            let opacity = Number(blusherOpacityButton.dataset.opacity);
-            if (evt.target.classList.contains("heavy")) {
-                opacity >= 1 ? null : opacity += 0.1;
-            } else if (evt.target.classList.contains("light")) {
-                opacity <= 0 ? null : opacity -= 0.1;
-            }
-            blusherOpacityButton.dataset.opacity = opacity;
-            Object(_util_draw_js__WEBPACK_IMPORTED_MODULE_0__["drawImg2Canvas"])(output, input);
-            Object(_blusher__WEBPACK_IMPORTED_MODULE_1__["default"])(output,landmark)
-        }
-        return;
-    }
+    blusherOpacityButton.addEventListener("change",(evt)=>{
+        fullMakeup(input,output,landmark)
+    })
 }
 
 function lipMakeup(input,output,landmark){
     //색 지정
-    let lipsButton = document.querySelector(".lipsMakeButton");
-    lipsButton.onclick = ()=> {
-        Object(_util_draw_js__WEBPACK_IMPORTED_MODULE_0__["drawImg2Canvas"])(output, input);
-        Object(_lips__WEBPACK_IMPORTED_MODULE_2__["default"])(output,input,landmark)
-    }
+    let lipsColor = document.querySelector("#lipValue");
+    lipsColor.addEventListener("change",()=>{
+        fullMakeup(input,output,landmark)
+    })
 
     //투명도 지정
     let lipsOpacityButton = document.querySelector(".lipsOpacity");
-    lipsOpacityButton.onclick =(evt) =>{
-        if (evt.target.tagName === "BUTTON") {
-            let opacity = Number(lipsOpacityButton.dataset.opacity);
-            if (evt.target.classList.contains("heavy")) {
-                opacity >= 1 ? null : opacity += 0.1;
-            } else if (evt.target.classList.contains("light")) {
-                opacity <= 0 ? null : opacity -= 0.1;
-            }
-            lipsOpacityButton.dataset.opacity = opacity;
-            Object(_util_draw_js__WEBPACK_IMPORTED_MODULE_0__["drawImg2Canvas"])(output, input);
-            Object(_lips__WEBPACK_IMPORTED_MODULE_2__["default"])(output,input,landmark)
-        }
-        return;
-    }
+    lipsOpacityButton.addEventListener("change",() =>{
+        fullMakeup(input,output,landmark)
+    })
 }
 function fullMakeup(input,output,landmark){
-    //적용된 메이크업 모두 수행
-    let fullmakeButton = document.querySelector(".fullMakeButton")
-    fullmakeButton.onclick = ()=>{
-        Object(_util_draw_js__WEBPACK_IMPORTED_MODULE_0__["drawImg2Canvas"])(output, input);
-        Object(_lips__WEBPACK_IMPORTED_MODULE_2__["default"])(output,input,landmark)
-        Object(_blusher__WEBPACK_IMPORTED_MODULE_1__["default"])(output,landmark)
-    }
-
-    //지우기
-    let resetButton = document.querySelector(".resetButton")
-    resetButton.onclick = ()=>{
-        Object(_util_draw_js__WEBPACK_IMPORTED_MODULE_0__["drawImg2Canvas"])(output, input);
-    }
-    
+    Object(_util_draw_js__WEBPACK_IMPORTED_MODULE_0__["drawImg2Canvas"])(output, input);
+    Object(_lips__WEBPACK_IMPORTED_MODULE_2__["default"])(output,input,landmark)
+    Object(_blusher__WEBPACK_IMPORTED_MODULE_1__["default"])(output,landmark)
 }
 
 
@@ -23896,12 +23964,12 @@ function getPositionFineTunning2(canvas, landmarks) {
         isEdge.push(tmp)
     }
     //꼬리부분 무사한지 확인
-    if (!(isEdge[0] > edge || isEdge[12] > edge)) {
-        console.log("왼쪽 무사안함")
-    }
-    if (!(isEdge[6] > edge || isEdge[16] > edge)) {
-        console.log("오른쪽 무사안함")
-    }
+    // if (!(isEdge[0] > edge || isEdge[12] > edge)) {
+    //     console.log("왼쪽 무사안함")
+    // }
+    // if (!(isEdge[6] > edge || isEdge[16] > edge)) {
+    //     console.log("오른쪽 무사안함")
+    // }
 
     let topLip = [0, 1, 2, 3, 4, 5, 6, 16, 15, 14, 13, 12];
     let bottomLip = [7, 8, 9, 10, 11, 12, 0, 19, 18, 17, 16, 6];
@@ -24043,8 +24111,9 @@ function isClose(landmarks) {
     return false;
 }
 function makeup(output, input, landmark) {
-    let color = document.querySelector(".lipscolor").value;
-    let opacity = document.querySelector(".lipsOpacity").dataset.opacity;
+    let color = document.querySelector("#lipValue").value;
+    let opacity = document.querySelector(".lipsOpacity").value;
+    opacity = opacity/100;
     let positionsOpen = getLipsPosition(landmark);
     let positionsClose = getPositionFineTunning2(output, landmark)
     Object(_util_draw_js__WEBPACK_IMPORTED_MODULE_0__["drawImg2Canvas"])(output, input);
@@ -24271,15 +24340,105 @@ function convertHex2Rgb(hex){
 
 /***/ }),
 
+/***/ "./src/util/imageCompairon.js":
+/*!************************************!*\
+  !*** ./src/util/imageCompairon.js ***!
+  \************************************/
+/*! exports provided: default */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "default", function() { return initComparisons; });
+function initComparisons() {
+    var x, i;
+    /*find all elements with an "overlay" class:*/
+    x = document.getElementsByClassName("img-comp-overlay");
+    for (i = 0; i < x.length; i++) {
+      /*once for each "overlay" element:
+      pass the "overlay" element as a parameter when executing the compareImages function:*/
+      compareImages(x[i]);
+    }
+    function compareImages(img) {
+      var slider, img, clicked = 0, w, h;
+      /*get the width and height of the img element*/
+      w = img.offsetWidth;
+      h = img.offsetHeight;
+      /*set the width of the img element to 50%:*/
+      img.style.width = (w / 2) + "px";
+      /*create slider:*/
+      slider = document.createElement("DIV");
+      slider.setAttribute("class", "img-comp-slider");
+      /*insert slider*/
+      img.parentElement.insertBefore(slider, img);
+      /*position the slider in the middle:*/
+      slider.style.top = (h / 2) - (slider.offsetHeight / 2) + "px";
+      slider.style.left = (w / 2) - (slider.offsetWidth / 2) + "px";
+      /*execute a function when the mouse button is pressed:*/
+      slider.addEventListener("mousedown", slideReady);
+      /*and another function when the mouse button is released:*/
+      window.addEventListener("mouseup", slideFinish);
+      /*or touched (for touch screens:*/
+      slider.addEventListener("touchstart", slideReady);
+      /*and released (for touch screens:*/
+      window.addEventListener("touchstop", slideFinish);
+      function slideReady(e) {
+        /*prevent any other actions that may occur when moving over the image:*/
+        e.preventDefault();
+        /*the slider is now clicked and ready to move:*/
+        clicked = 1;
+        /*execute a function when the slider is moved:*/
+        window.addEventListener("mousemove", slideMove);
+        window.addEventListener("touchmove", slideMove);
+      }
+      function slideFinish() {
+        /*the slider is no longer clicked:*/
+        clicked = 0;
+      }
+      function slideMove(e) {
+        var pos;
+        /*if the slider is no longer clicked, exit this function:*/
+        if (clicked == 0) return false;
+        /*get the cursor's x position:*/
+        pos = getCursorPos(e)
+        /*prevent the slider from being positioned outside the image:*/
+        if (pos < 0) pos = 0;
+        if (pos > w) pos = w;
+        /*execute a function that will resize the overlay image according to the cursor:*/
+        slide(pos);
+      }
+      function getCursorPos(e) {
+        var a, x = 0;
+        e = e || window.event;
+        /*get the x positions of the image:*/
+        a = img.getBoundingClientRect();
+        /*calculate the cursor's x coordinate, relative to the image:*/
+        x = e.pageX - a.left;
+        /*consider any page scrolling:*/
+        x = x - window.pageXOffset;
+        return x;
+      }
+      function slide(x) {
+        /*resize the image:*/
+        img.style.width = x + "px";
+        /*position the slider:*/
+        slider.style.left = img.offsetWidth - (slider.offsetWidth / 2) + "px";
+      }
+    }
+  }
+
+/***/ }),
+
 /***/ 0:
-/*!*******************************************!*\
-  !*** multi @babel/polyfill ./src/main.js ***!
-  \*******************************************/
+/*!***************************************************************!*\
+  !*** multi @babel/polyfill ./src/main.js ./src/css/main.scss ***!
+  \***************************************************************/
 /*! no static exports found */
 /***/ (function(module, exports, __webpack_require__) {
 
 __webpack_require__(/*! @babel/polyfill */"./node_modules/@babel/polyfill/lib/index.js");
-module.exports = __webpack_require__(/*! ./src/main.js */"./src/main.js");
+__webpack_require__(/*! ./src/main.js */"./src/main.js");
+module.exports = __webpack_require__(/*! ./src/css/main.scss */"./src/css/main.scss");
 
 
 /***/ }),
