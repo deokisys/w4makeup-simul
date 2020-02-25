@@ -1,4 +1,3 @@
-import { draw } from "face-api.js";
 import equation from './equation.js';
 
 /**
@@ -13,40 +12,6 @@ export function drawImg2Canvas(canvas,image){
     canvas.height = height;
     const ctx = canvas.getContext('2d');
     ctx.drawImage(image, 0, 0, width, height);
-}
-/**
- * 얼굴 영역 칠하기
- * 
- * @param {} canvas 
- * @param {*} image 
- * @param  {...any} area 
- */
-export function drawFacearea(canvas,image,...area){
-    drawImg2Canvas(canvas,image);
-    const ctx = canvas.getContext('2d');
-    ctx.globalAlpha = 0.2;
-    ctx.fillRect(...area);
-}
-function drawEye(canvas,...position){
-    const ctx = canvas.getContext('2d');
-    ctx.globalAlpha = 0.2;
-    ctx.fillStyle="red"
-    let x=position[0]-10;
-    let y=position[1]-10;
-    let width=20
-    let height=20
-    ctx.fillRect(x,y,width,height);
-}
-/**
- * 양쪽 눈 그리기
- * 
- * @param {*} canvas 
- * @param  {...any} area 
- */
-export function drawEyes(canvas,...positions){
-    // drawImg2Canvas(canvas,image);
-    drawEye(canvas,positions[0],positions[1])
-    drawEye(canvas,positions[2],positions[3])
 }
 
 export function drawDot(canvas,...position){
@@ -117,15 +82,12 @@ export function drawCloseLip(canvas,color,positions){
     ctx.fillStyle=grd
     ctx.globalCompositeOperation = "multiply";
     ctx.beginPath();
-    positions.topLip.map((ele,i)=>{
-        if(i===0){
-            ctx.moveTo(ele.x, ele.y);
-            return;
-        } 
-        if(i<=6) ctx.lineTo(ele.x, ele.y);
+    ctx.moveTo(positions.topLip[0].x, positions.topLip[0].y);
+    positions.topLip.slice(1,7).map((ele,i)=>{
+        ctx.lineTo(ele.x, ele.y);
     })
-    positions.bottomLip.map((ele,i)=>{
-        if(i<5) ctx.lineTo(ele.x, ele.y);
+    positions.bottomLip.slice(0,6).map((ele,i)=>{
+        ctx.lineTo(ele.x, ele.y);
     })
     ctx.transform(1,0,0,radiusY/radiusX,0,center.y-center.y*(radiusY/radiusX));
     ctx.fill();
@@ -147,28 +109,6 @@ export function drawBlusher(canvas,color,positions){
     let leftY=positions.leftY;
     let leftRadius=positions.leftRadius;
     let rgbcolor = convertHex2Rgb(color.color);
-
-    // //가로줄
-    // ctx.beginPath();
-    // ctx.moveTo(0, m*0+addition);
-    // ctx.lineTo(canvas.width, m*canvas.width+addition);
-    // ctx.stroke();
-
-    // //왼쪽 세로줄
-    // ctx.beginPath();
-    // ctx.moveTo(0, m2*0+addition2_1);
-    // ctx.lineTo(1000, m2*1000+addition2_1);
-    // ctx.stroke();
-
-    // //오른쪽 세로줄
-    // ctx.beginPath();
-    // ctx.moveTo(0, m2*0+addition2_2);
-    // ctx.lineTo(1000, m2*1000+addition2_2);
-    // ctx.stroke();
-
-    //중앙영역
-    //오른쪽
-
 
     let blushDegree = 25;
 
