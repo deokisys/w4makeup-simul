@@ -20,6 +20,10 @@ function startVideo(){
             facingMode: 'user'
         };
     }
+    if(navigator.mediaDevices===undefined){
+        alert("디바이스를 찾을 수 없습니다.")
+        return
+    }
     navigator.mediaDevices.getUserMedia({
         video:option,
         audio:false
