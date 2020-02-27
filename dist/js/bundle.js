@@ -23939,6 +23939,9 @@ function getPositionFineTunning2(canvas, landmarks) {
 
     let m = (leftMouthCorner.y - rightMouthCorner.y) / (leftMouthCorner.x - rightMouthCorner.x)   //입꼬리 기울기
 
+    
+    if(m>=0.45||m<=-0.45) return false;//정면이면서 45도 이상 기울어진 경우 false;
+
     let leftTopX = (jawPositions[4].x + leftMouthCorner.x) / 2;
     let leftTopY = ((lipPositions[2].y > lipPositions[4].y ? lipPositions[4].y : lipPositions[2].y) + landmarks[33].y) / 2
     let width = (rightMouthCorner.x + jawPositions[12].x) / 2 - leftTopX;
@@ -24120,7 +24123,8 @@ function makeup(output, input, landmark) {
     let opacity = document.querySelector(".lipsOpacity").value;
     opacity = opacity/100;
     let positionsOpen = getLipsPosition(landmark);
-    let positionsClose = getPositionFineTunning2(output, landmark)
+    let positionsClose = getPositionFineTunning2(output, landmark);
+    if(!positionsClose) positionsClose = positionsOpen;
     Object(_util_draw_js__WEBPACK_IMPORTED_MODULE_0__["drawImg2Canvas"])(output, input);
     if (isClose(landmark)) {
         Object(_util_draw_js__WEBPACK_IMPORTED_MODULE_0__["drawCloseLip"])(output, { color, opacity }, positionsClose)
