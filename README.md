@@ -4,6 +4,24 @@
 # 정리
 - [위키](https://oss.navercorp.com/s-junbae/intern-face/wiki)
 
+# 데모 스크린샷
+
+- 적용전 이미지 입력
+![적용전](https://user-images.githubusercontent.com/24247768/197826824-de7af99c-6335-4f1c-bae0-4a54a28e1ac7.png)
+
+- 얼굴인식 모델로 얼굴 인식
+![얼굴인식](https://user-images.githubusercontent.com/24247768/197826900-0f135b7b-9fe4-4a4e-884c-9f1b51d36ecf.png)
+
+- 화장 적용(볼, 입술)
+![화장적용](https://user-images.githubusercontent.com/24247768/197826973-cb3588b2-4750-4027-a9e7-b53e9c4bda55.png)
+
+- 화장 컨트롤러
+![화장 컨트롤러](https://user-images.githubusercontent.com/24247768/197827445-fc4af318-35e8-4044-b10c-bf351318016a.png)
+
+- 기울인 얼굴
+![기울인얼굴](https://user-images.githubusercontent.com/24247768/197828784-ba334aec-fd11-486e-a4f0-50c427231947.png)
+
+
 # 진행
 1. 얼굴인식 모델을 이용하여 얼굴 포인트 인식
     - blazeface
