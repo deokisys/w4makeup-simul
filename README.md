@@ -1,9 +1,6 @@
 # 얼굴 화장 UI
 `얼굴을 인식후, 화장 시뮬레이션을 구현합니다.`
 
-# 정리
-- [위키](https://oss.navercorp.com/s-junbae/intern-face/wiki)
-
 # 데모 스크린샷
 
 - 적용전 이미지 입력
