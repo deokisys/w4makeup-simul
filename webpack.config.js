@@ -1,4 +1,5 @@
 const path = require("path");
+const HTMLWebpackPlugin = require("html-webpack-plugin");
 const MiniCssExtractPlugin = require("mini-css-extract-plugin");
 
 module.exports = {
@@ -10,23 +11,30 @@ module.exports = {
     path: path.resolve(__dirname, "dist"),
     filename: "js/bundle.js",
   },
+  //server설정
+  devServer: {
+    //react-router에서 url에서 바로 접근하는거 가능하도록
+    historyApiFallback: true,
+    //contentBase에서 변경됨
+    static: {
+      directory: "dist",
+    },
+    // hot 프로퍼티를 true로 설정!
+    hot: true,
+  },
   plugins: [
     // 컴파일 + 번들링 CSS 파일이 저장될 경로와 이름 지정
     new MiniCssExtractPlugin({ filename: "css/style.css" }),
+    new HTMLWebpackPlugin({
+      template: "./public/index.html",
+    }),
   ],
   module: {
     rules: [
       {
-        test: /\.js$/,
-        include: [path.resolve(__dirname, "src/js")],
+        test: /\.(js|jsx)$/,
         exclude: /node_modules/,
-        use: {
-          loader: "babel-loader",
-          options: {
-            presets: ["@babel/preset-env"],
-            plugins: ["@babel/plugin-proposal-class-properties"],
-          },
-        },
+        use: "babel-loader",
       },
       {
         test: /\.scss$/,
@@ -37,9 +45,24 @@ module.exports = {
         ],
         exclude: /node_modules/,
       },
+      {
+        test: /\.(png|jpe?g|gif|svg|webp)$/i,
+        loader: "file-loader",
+        options: {
+          publicPath: "",
+          // name: 'images/[name].[ext]',
+          name: "[name].[ext]?[hash]",
+        },
+      },
     ],
+  },
+  resolve: {
+    extensions: [".jsx", ".js"],
+    fallback: {
+      //https://github.com/justadudewhohacks/face-api.js/issues/154
+      fs: false,
+    },
   },
   devtool: "source-map",
   // https://webpack.js.org/concepts/mode/#mode-development
-  mode: "development",
 };

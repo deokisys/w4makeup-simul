@@ -4,7 +4,8 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "build": "webpack -w",
+    "dev": "webpack-dev-server --progress --mode development",
+    "build": "webpack --progress --mode production",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
@@ -31,6 +32,7 @@
   },
   "dependencies": {
     "@babel/polyfill": "^7.8.3",
+    "@babel/preset-react": "^7.23.3",
     "@tensorflow-models/blazeface": "0.1.0",
     "@tensorflow/tfjs": "^4.16.0",
     "@tensorflow/tfjs-converter": "^4.16.0",
@@ -38,6 +40,7 @@
     "@tensorflow/tfjs-node": "^4.16.0",
     "canvas": "^2.11.2",
     "face-api.js": "^0.22.2",
+    "html-webpack-plugin": "^5.6.0",
     "sobel": "0.0.11"
   }
 }
