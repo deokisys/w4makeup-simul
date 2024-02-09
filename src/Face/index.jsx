@@ -1,12 +1,34 @@
-import React, { useEffect, useRef } from "react";
-import { blushMakeup, lipMakeup, fullMakeup } from "./makeup";
+import React, { useEffect, useRef, useState } from "react";
 import * as faceapi from "face-api.js";
 import { drawImg2Canvas, drawLip } from "../util/draw";
 import getlandmark from "../util/landmark";
+import { HexColorPicker, HexColorInput } from "react-colorful";
 
 export default function Face() {
+  const [color, setColor] = useState("#FF5454"); //#2091FF
+  //ff 21 62 rgb(255, 33, 98)
+  const [faceLandMark, setFaceLandMark] = useState(undefined);
+  const [lipPosition, setLipPosition] = useState(undefined);
   const inputRef = useRef(null);
   const outputRef = useRef(null);
+
+  //색 변환
+  useEffect(() => {
+    if (!faceLandMark) return;
+    lipMakeupTmp();
+  }, [color]);
+
+  //얼굴 인식후
+  useEffect(() => {
+    if (!faceLandMark) return;
+    getLipsPosition(faceLandMark);
+  }, [faceLandMark]);
+
+  //입술 위치확인
+  useEffect(() => {
+    if (!lipPosition) return;
+    lipMakeupTmp();
+  }, [lipPosition]);
 
   useEffect(() => {
     Promise.all([
@@ -24,7 +46,6 @@ export default function Face() {
   }, []);
 
   async function predict(input, displaySize) {
-    console.log(input);
     const detections = await faceapi
       .detectAllFaces(input, new faceapi.TinyFaceDetectorOptions())
       .withFaceLandmarks();
@@ -40,18 +61,12 @@ export default function Face() {
 
     // create an HTMLImageElement from a Blob
     const img = await faceapi.bufferToImage(imgFile);
-    alert("이미지 들어옴");
     inputImg.src = img.src;
     inputImg.width = img.width;
     inputImg.height = img.height;
-
-    console.log(img.width);
-    console.log(inputImg.width);
-    console.log(inputImg);
   }
 
   async function imgLoad() {
-    alert("모어쩔");
     const output = outputRef.current;
     const inputImg = inputRef.current;
     // //세로가 긴 경우
@@ -76,22 +91,32 @@ export default function Face() {
     //예측
     let landmarks = await predict(inputImg, displaySize, output);
     if (!landmarks) return alert("얼굴을 찾지 못했습니다.");
-    console.log(landmarks);
-    drawImg2Canvas(output, inputImg);
-    let positionsOpen = getLipsPosition(landmarks);
-    drawLip(output, { color: "#2091FF", opacity: 0.5 }, positionsOpen);
+
+    setFaceLandMark(landmarks);
+
     //부위별 메이크업 수행
     // lipMakeup(inputImg, output, landmarks);
     // blushMakeup(inputImg, output, landmarks);
     // fullMakeup(inputImg, output, landmarks);
   }
+  function lipMakeupTmp() {
+    const output = outputRef.current;
+    const inputImg = inputRef.current;
 
+    drawImg2Canvas(output, inputImg);
+    drawLip(output, { color: color, opacity: 0.5 }, lipPosition);
+  }
   function getLipsPosition(landmarks) {
-    return {
+    setLipPosition({
       topLip: getlandmark.getTopLipPositions(landmarks),
       bottomLip: getlandmark.getBottomLipPositions(landmarks),
-    };
+    });
   }
+
+  function lipChange(color) {
+    setColor(color.toUpperCase());
+  }
+
   return (
     <div>
       <input
@@ -113,6 +138,8 @@ export default function Face() {
           <canvas ref={outputRef} id="output"></canvas>
         </div>
       </div>
+      <HexColorPicker color={color} onChange={lipChange} />
+      <HexColorInput color={color} onChange={lipChange} />
     </div>
   );
 }
