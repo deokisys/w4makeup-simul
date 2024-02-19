@@ -2,7 +2,6 @@ import React, { useEffect, useRef, useState } from "react";
 import * as faceapi from "face-api.js";
 import { drawBlusher, drawImg2Canvas, drawLip } from "../util/draw";
 import getlandmark from "../util/landmark";
-import { HexColorPicker, HexColorInput } from "react-colorful";
 import getBlushPosition from "./makeup/blusher";
 import Controller from "./Controller";
 
