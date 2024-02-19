@@ -44,6 +44,21 @@
 
 - node 19.9.0
 
+## 업데이트
+
+### 바닐라 javascript->react로 변경
+
+- 기존의 javascript로 구축한 환경을 react로 수정
+
+### 버전 업그레이드
+
+- 기존의 12 버전에서 19버전으로 업그레이드
+  - tensorflow를 업그레이드 하면서 버전 upgrade
+
+### 색지정 라이브러리 변경
+
+- 기존의 jscolor.js에서 react의 색지정 라이브러리인 react-colorful로 변경
+
 # 참고
 
 - 얼굴인식 API
