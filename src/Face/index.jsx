@@ -1,35 +1,40 @@
 import React, { useEffect, useRef, useState } from "react";
 import * as faceapi from "face-api.js";
-import { drawImg2Canvas, drawLip } from "../util/draw";
+import { drawBlusher, drawImg2Canvas, drawLip } from "../util/draw";
 import getlandmark from "../util/landmark";
 import { HexColorPicker, HexColorInput } from "react-colorful";
+import getBlushPosition from "./makeup/blusher";
 
 export default function Face() {
-  const [color, setColor] = useState("#FF5454"); //#2091FF
+  const [libColor, setLibColor] = useState("#FF5454"); //#2091FF
+  const [blushColor, setBlushColor] = useState("#FF5454"); //#2091FF
+
   //ff 21 62 rgb(255, 33, 98)
   const [faceLandMark, setFaceLandMark] = useState(undefined);
-  const [lipPosition, setLipPosition] = useState(undefined);
   const inputRef = useRef(null);
   const outputRef = useRef(null);
 
-  //색 변환
+  //입술 색 변환
   useEffect(() => {
     if (!faceLandMark) return;
-    lipMakeupTmp();
-  }, [color]);
+    fullMakeupTmp();
+  }, [libColor]);
+
+  //볼 색 변환
+  useEffect(() => {
+    if (!faceLandMark) return;
+    fullMakeupTmp();
+  }, [blushColor]);
 
   //얼굴 인식후
   useEffect(() => {
     if (!faceLandMark) return;
-    getLipsPosition(faceLandMark);
+    fullMakeupTmp();
   }, [faceLandMark]);
 
-  //입술 위치확인
-  useEffect(() => {
-    if (!lipPosition) return;
-    lipMakeupTmp();
-  }, [lipPosition]);
-
+  /**
+   * 모델 로딩
+   */
   useEffect(() => {
     Promise.all([
       faceapi.nets.faceLandmark68Net.loadFromUri(
@@ -45,6 +50,12 @@ export default function Face() {
     }
   }, []);
 
+  /**
+   * 예측
+   * @param {*} input
+   * @param {*} displaySize
+   * @returns
+   */
   async function predict(input, displaySize) {
     const detections = await faceapi
       .detectAllFaces(input, new faceapi.TinyFaceDetectorOptions())
@@ -66,25 +77,13 @@ export default function Face() {
     inputImg.height = img.height;
   }
 
+  /**
+   * 이미지 로딩
+   * @returns
+   */
   async function imgLoad() {
     const output = outputRef.current;
     const inputImg = inputRef.current;
-    // //세로가 긴 경우
-    // if (inputImg.height > viewArea.offsetHeight) {
-    //   let resize = viewArea.offsetHeight / inputImg.height;
-    //   inputImg.height = inputImg.height * resize;
-    //   inputImg.width = inputImg.width * resize;
-    // }
-    // //가로가 긴 경우
-    // if (inputImg.width > viewArea.offsetWidth) {
-    //   let resize = viewArea.offsetWidth / inputImg.width;
-    //   inputImg.height = inputImg.height * resize;
-    //   inputImg.width = inputImg.width * resize;
-    // }
-    // output.style.left = `${(800 - inputImg.width) / 2}px`;
-    // inputImg.style.left = `${(800 - inputImg.width) / 2}px`;
-    // output.style.top = `${(viewArea.offsetHeight - inputImg.height) / 2}px`;
-    // inputImg.style.top = `${(viewArea.offsetHeight - inputImg.height) / 2}px`;
 
     const displaySize = { width: inputImg.width, height: inputImg.height };
     faceapi.matchDimensions(output, displaySize);
@@ -93,28 +92,61 @@ export default function Face() {
     if (!landmarks) return alert("얼굴을 찾지 못했습니다.");
 
     setFaceLandMark(landmarks);
-
-    //부위별 메이크업 수행
-    // lipMakeup(inputImg, output, landmarks);
-    // blushMakeup(inputImg, output, landmarks);
-    // fullMakeup(inputImg, output, landmarks);
   }
-  function lipMakeupTmp() {
+
+  /**
+   * 메이크업 초기화
+   */
+  function resetMakeup() {
     const output = outputRef.current;
     const inputImg = inputRef.current;
 
     drawImg2Canvas(output, inputImg);
-    drawLip(output, { color: color, opacity: 0.5 }, lipPosition);
   }
-  function getLipsPosition(landmarks) {
-    setLipPosition({
-      topLip: getlandmark.getTopLipPositions(landmarks),
-      bottomLip: getlandmark.getBottomLipPositions(landmarks),
-    });
+
+  /**
+   * 입술 영역에 색칠
+   */
+  function lipMakeupTmp() {
+    const output = outputRef.current;
+
+    drawLip(output, { color: libColor, opacity: 0.5 }, getLipsPosition());
+  }
+
+  /**
+   * 볼 영역에 색칠
+   */
+  function blushMakeupTmp() {
+    const output = outputRef.current;
+
+    drawBlusher(
+      output,
+      { color: blushColor, opacity: 0.5 },
+      getBlushPosition(faceLandMark)
+    );
+  }
+
+  /**
+   * 풀메이크업
+   */
+  function fullMakeupTmp() {
+    resetMakeup();
+    lipMakeupTmp();
+    blushMakeupTmp();
+  }
+
+  function getLipsPosition() {
+    return {
+      topLip: getlandmark.getTopLipPositions(faceLandMark),
+      bottomLip: getlandmark.getBottomLipPositions(faceLandMark),
+    };
   }
 
   function lipChange(color) {
-    setColor(color.toUpperCase());
+    setLibColor(color.toUpperCase());
+  }
+  function blushChange(color) {
+    setBlushColor(color.toUpperCase());
   }
 
   return (
@@ -138,8 +170,16 @@ export default function Face() {
           <canvas ref={outputRef} id="output"></canvas>
         </div>
       </div>
-      <HexColorPicker color={color} onChange={lipChange} />
-      <HexColorInput color={color} onChange={lipChange} />
+      <div>
+        <div>
+          <HexColorPicker color={libColor} onChange={lipChange} />
+          <HexColorInput color={libColor} onChange={lipChange} />
+        </div>
+        <div>
+          <HexColorPicker color={blushColor} onChange={blushChange} />
+          <HexColorInput color={blushColor} onChange={blushChange} />
+        </div>
+      </div>
     </div>
   );
 }
