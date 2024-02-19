@@ -4,12 +4,12 @@ import { drawBlusher, drawImg2Canvas, drawLip } from "../util/draw";
 import getlandmark from "../util/landmark";
 import { HexColorPicker, HexColorInput } from "react-colorful";
 import getBlushPosition from "./makeup/blusher";
+import Controller from "./Controller";
 
 export default function Face() {
-  const [libColor, setLibColor] = useState("#FF5454"); //#2091FF
-  const [blushColor, setBlushColor] = useState("#FF5454"); //#2091FF
+  const [libColor, setLibColor] = useState("#FF5454");
+  const [blushColor, setBlushColor] = useState("#FF5454");
 
-  //ff 21 62 rgb(255, 33, 98)
   const [faceLandMark, setFaceLandMark] = useState(undefined);
   const inputRef = useRef(null);
   const outputRef = useRef(null);
@@ -142,7 +142,7 @@ export default function Face() {
     };
   }
 
-  function lipChange(color) {
+  function libChange(color) {
     setLibColor(color.toUpperCase());
   }
   function blushChange(color) {
@@ -170,16 +170,12 @@ export default function Face() {
           <canvas ref={outputRef} id="output"></canvas>
         </div>
       </div>
-      <div>
+      {faceLandMark && (
         <div>
-          <HexColorPicker color={libColor} onChange={lipChange} />
-          <HexColorInput color={libColor} onChange={lipChange} />
+          <Controller color={libColor} onChange={libChange} name={"입술"} />
+          <Controller color={blushColor} onChange={blushChange} name={"볼"} />
         </div>
-        <div>
-          <HexColorPicker color={blushColor} onChange={blushChange} />
-          <HexColorInput color={blushColor} onChange={blushChange} />
-        </div>
-      </div>
+      )}
     </div>
   );
 }
