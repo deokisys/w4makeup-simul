@@ -4,6 +4,11 @@ import { drawBlusher, drawImg2Canvas, drawLip } from "../util/draw";
 import getlandmark from "../util/landmark";
 import getBlushPosition from "./makeup/blusher";
 import Controller from "./Controller";
+import styled from "styled-components";
+
+const Wrap = styled.div`
+  display: flex;
+`;
 
 export default function Face() {
   const [libColor, setLibColor] = useState("#FF5454");
@@ -167,7 +172,7 @@ export default function Face() {
         type="file"
         accept=".jpg, .jpeg, .png"
       />
-      <div>
+      <Wrap>
         <div>
           <img
             onLoad={imgLoad}
@@ -182,7 +187,7 @@ export default function Face() {
         <div>
           <canvas ref={outputRef} id="output"></canvas>
         </div>
-      </div>
+      </Wrap>
       {faceLandMark && (
         <div>
           <Controller color={libColor} onChange={libChange} name={"입술"} />
