@@ -10,27 +10,28 @@ const Swatch = styled.div`
   box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.1), inset 0 0 0 1px rgba(0, 0, 0, 0.1);
   cursor: pointer;
 `;
+const Wrap = styled.div`
+  display: flex;
+  align-items: center;
+`;
 
 export default function Controller({ color, onChange, name }) {
   const [isOpen, setIsOpen] = useState(false);
 
-  function changeColor(color) {
-    setIsOpen(false);
-    onChange(color);
-  }
   return (
     <div>
-      <div>
+      <Wrap>
         <span>{name} 화장</span>
         <Swatch
           style={{ backgroundColor: color }}
-          onClick={() => setIsOpen(true)}
+          onClick={() => setIsOpen((prv) => !prv)}
         />
-      </div>
+      </Wrap>
       {isOpen && (
         <div>
-          <HexColorPicker color={color} onChange={changeColor} />
-          <HexColorInput color={color} onChange={changeColor} />
+          <HexColorPicker color={color} onChange={onChange} />
+          <HexColorInput color={color} onChange={onChange} />
+          <button onClick={() => setIsOpen(false)}>확인</button>
         </div>
       )}
     </div>
