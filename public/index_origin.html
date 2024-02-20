@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="ko">
+  <head>
+    <meta charset="utf-8" />
+    <link rel="stylesheet" href="./dist/css/style.css" />
+    <title>intern_face_서준배</title>
+  </head>
+  <body>
+    <div class="makeup_wrap">
+      <div class="viewer">
+        <div class="videoArea _videos">
+          <video id="video" autoplay muted playsinline></video>
+          <canvas id="videoOut"> </canvas>
+        </div>
+        <div class="img-comp-container _images">
+          <div class="beforeMakeup img-comp-img">
+            <img id="myImg" crossorigin="anonymous" />
+          </div>
+          <div class="afterMakeup img-comp-img img-comp-overlay">
+            <canvas id="output"></canvas>
+          </div>
+        </div>
+      </div>
+
+      <div class="mode">
+        <div class="file hoverGreen _bigButton" crossorigin="anonymous">
+          <input id="myFileUpload" type="file" accept=".jpg, .jpeg, .png" />
+        </div>
+        <div class="videobutton hoverGreen _bigButton" crossorigin="anonymous">
+          <input id="changeVideo" type="button" value="영상" />
+        </div>
+        <div class="makeupbutton hoverGreen _bigButton" crossorigin="anonymous">
+          <input id="modemakeup" type="button" value="메이크업" />
+        </div>
+      </div>
+      <div class="makeup">
+        <div class="lips _makeupPart">
+          <div class="_icon_wrap">
+            <img
+              class="_icon"
+              src="http://viewoss.navercorp.com/s-junbae/intern-face/blob/develop/public/icon/inclined-lipstick.svg"
+              crossorigin="anonymous"
+            />
+            <span>입술</span>
+          </div>
+          <div class="_color_pick">
+            <div id="lipPreview" class="_preview">
+              <button
+                class="jscolor {valueElement:'lipValue', styleElement:'lipPreview',value:'ff4040'}"
+              ></button>
+            </div>
+            <input type="text" id="lipValue" class="_color_value" />
+          </div>
+          <div class="_opacity">
+            <input
+              type="range"
+              min="1"
+              max="100"
+              value="50"
+              class="slider lipsOpacity"
+            />
+            <span>- 진하게 +</span>
+          </div>
+        </div>
+        <div class="blush _makeupPart">
+          <div class="_icon_wrap">
+            <img
+              class="_icon"
+              src="http://viewoss.navercorp.com/s-junbae/intern-face/blob/develop/public/icon/makeup.svg"
+              crossorigin="anonymous"
+            />
+            <span>볼터치</span>
+          </div>
+          <div class="_color_pick">
+            <div id="blushPreview" class="_preview">
+              <button
+                class="jscolor {valueElement:'blushValue', styleElement:'blushPreview',value:'FF6F61'}"
+              ></button>
+            </div>
+            <input type="text" id="blushValue" class="_color_value" />
+          </div>
+          <div class="_opacity">
+            <input
+              type="range"
+              min="1"
+              max="100"
+              value="50"
+              class="slider blusherOpacity"
+            />
+            <span>- 진하게 +</span>
+          </div>
+        </div>
+      </div>
+    </div>
+    <!-- <script src="./dist/js/bundle.js"></script>
+    <script src="./src/util/jscolor.js"></script> -->
+  </body>
+</html>

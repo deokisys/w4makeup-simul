@@ -1,147 +1,148 @@
-@import 'reset';
+@import "reset";
 
 $imagewidth: 800px;
-$buttonSizeBig:100px;
-$buttonSizeMid:75px;
-.makeup_wrap{
+$buttonSizeBig: 100px;
+$buttonSizeMid: 75px;
+.makeup_wrap {
   width: $imagewidth;
-  margin:0 auto;
+  margin: 0 auto;
   text-align: center;
 }
-.viewer{
-  display:flex;
+.viewer {
+  display: flex;
   justify-content: center;
   background-color: black;
-  width:$imagewidth;
-  height:$imagewidth*4/3;
-  margin:0 auto;
-  ._images{
-    width:100%;
-    height:100%;
-    .beforeMakeup{
-      width:100%;
-      height:100%;
+  width: $imagewidth;
+  height: $imagewidth * 4/3;
+  margin: 0 auto;
+  ._images {
+    width: 100%;
+    height: 100%;
+    .beforeMakeup {
+      width: 100%;
+      height: 100%;
     }
-    .afterMakeup{
-      width:100%;
-      height:100%;
+    .afterMakeup {
+      width: 100%;
+      height: 100%;
     }
-    img{
-      position:absolute;
+    img {
+      position: absolute;
     }
-    canvas{
-      position:absolute;
-    }
-  }
-  ._videos{
-    position:relative;
-    display:none;
-    width:100%;
-    height:100%;
-    #video{
-      position:absolute;
-      left:0;
-    }
-    #videoOut{
-      position:absolute;
-      left:0;
+    canvas {
+      position: absolute;
     }
   }
-  
+  ._videos {
+    position: relative;
+    display: none;
+    width: 100%;
+    height: 100%;
+    #video {
+      position: absolute;
+      left: 0;
+    }
+    #videoOut {
+      position: absolute;
+      left: 0;
+    }
+  }
 }
 
-.mode{
-  display:flex;
+.mode {
+  display: flex;
   justify-content: center;
 }
 //
-.file{
-  background: url(http://viewoss.navercorp.com/s-junbae/intern-face/blob/develop/public/icon/folder.svg) no-repeat;
+.file {
+  background: url("http://viewoss.navercorp.com/s-junbae/intern-face/blob/develop/public/icon/folder.svg")
+    no-repeat;
 }
-.videobutton{
-  background: url(http://viewoss.navercorp.com/s-junbae/intern-face/blob/develop/public/icon/camera.svg) no-repeat;
+.videobutton {
+  background: url(http://viewoss.navercorp.com/s-junbae/intern-face/blob/develop/public/icon/camera.svg)
+    no-repeat;
 }
-.makeupbutton{
-  background: url(http://viewoss.navercorp.com/s-junbae/intern-face/blob/develop/public/icon/beauty.svg) no-repeat;
+.makeupbutton {
+  background: url(http://viewoss.navercorp.com/s-junbae/intern-face/blob/develop/public/icon/beauty.svg)
+    no-repeat;
 }
-._bigButton{
-  position:relative;
-  flex-grow:1;
-  height:$buttonSizeBig;
-  background-size:$buttonSizeBig auto;
+._bigButton {
+  position: relative;
+  flex-grow: 1;
+  height: $buttonSizeBig;
+  background-size: $buttonSizeBig auto;
   background-position: center;
-  input{
-      position: absolute;
-      left:0;
-      top:0;
-      width:100%;
-      height:100%;
-      background-color: blue;
-      opacity:0;
+  input {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: blue;
+    opacity: 0;
   }
 }
-.hoverGreen:hover{
+.hoverGreen:hover {
   background-color: rgb(115, 234, 144);
 }
 //
-.makeup{
-    display:none;
-    flex-direction: column;
+.makeup {
+  display: none;
+  flex-direction: column;
 }
 
 //
-._makeupPart{
-  display:flex;
+._makeupPart {
+  display: flex;
   justify-content: space-between;
 
   margin: 10px 0;
-  width:600px;
-  ._icon_wrap{
-      display:flex;
-      flex-direction: column;
-      ._icon{
-        width:$buttonSizeMid;
-        height:$buttonSizeMid
+  width: 600px;
+  ._icon_wrap {
+    display: flex;
+    flex-direction: column;
+    ._icon {
+      width: $buttonSizeMid;
+      height: $buttonSizeMid;
     }
   }
-  ._color_pick{
-    display:flex;
+  ._color_pick {
+    display: flex;
     flex-direction: column;
     justify-content: flex-end;
-    ._preview{
-        margin:0 auto;
-        width:$buttonSizeMid;
-        height:$buttonSizeMid;
-        border-radius: 50%;
+    ._preview {
+      margin: 0 auto;
+      width: $buttonSizeMid;
+      height: $buttonSizeMid;
+      border-radius: 50%;
     }
-    .jscolor{
-        width:$buttonSizeMid;
-        height:$buttonSizeMid;
-        opacity: 0;
+    .jscolor {
+      width: $buttonSizeMid;
+      height: $buttonSizeMid;
+      opacity: 0;
     }
   }
-  ._opacity{
-      display:flex;
-      width:300px;
-      flex-direction: column;
-      justify-content: flex-end;
+  ._opacity {
+    display: flex;
+    width: 300px;
+    flex-direction: column;
+    justify-content: flex-end;
   }
 }
-
 
 //슬라이드바
 /* The slider itself */
 .slider {
-  -webkit-appearance: none;  /* Override default CSS styles */
+  -webkit-appearance: none; /* Override default CSS styles */
   appearance: none;
-  margin-bottom:30px;
+  margin-bottom: 30px;
   width: 100%; /* Full-width */
   height: 25px; /* Specified height */
   background: #d3d3d3; /* Grey background */
   outline: none; /* Remove outline */
   opacity: 0.7; /* Set transparency (for mouse-over effects on hover) */
-  -webkit-transition: .2s; /* 0.2 seconds transition on hover */
-  transition: opacity .2s;
+  -webkit-transition: 0.2s; /* 0.2 seconds transition on hover */
+  transition: opacity 0.2s;
 }
 
 /* Mouse-over effects */
@@ -168,12 +169,13 @@ $buttonSizeMid:75px;
   cursor: pointer; /* Cursor on hover */
 }
 
-
-
 ///슬라이더
-* {box-sizing: border-box;}
+* {
+  box-sizing: border-box;
+}
 
-.img-comp-container {//이미지 가로, 세로길이 입력
+.img-comp-container {
+  //이미지 가로, 세로길이 입력
   position: relative;
 }
 
@@ -196,7 +198,7 @@ $buttonSizeMid:75px;
   /*set the appearance of the slider:*/
   width: 40px;
   height: 40px;
-  background-color: #2196F3;
+  background-color: #2196f3;
   opacity: 0.7;
   border-radius: 50%;
 }
