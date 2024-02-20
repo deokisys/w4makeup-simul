@@ -12,6 +12,7 @@ export default function Face() {
   const [faceLandMark, setFaceLandMark] = useState(undefined);
   const inputRef = useRef(null);
   const outputRef = useRef(null);
+  const landmarkRef = useRef(null);
 
   //입술 색 변환
   useEffect(() => {
@@ -60,6 +61,7 @@ export default function Face() {
       .detectAllFaces(input, new faceapi.TinyFaceDetectorOptions())
       .withFaceLandmarks();
     const resizeDetections = faceapi.resizeResults(detections, displaySize);
+    landmarkPrint(input, resizeDetections);
     return resizeDetections.length
       ? resizeDetections[0].landmarks.positions
       : false;
@@ -134,6 +136,15 @@ export default function Face() {
     blushMakeupTmp();
   }
 
+  function landmarkPrint(input, resizeDetections) {
+    const landmark = landmarkRef.current;
+
+    //랜드마크 출력
+    drawImg2Canvas(landmark, input);
+    faceapi.draw.drawFaceLandmarks(landmark, resizeDetections);
+    //----
+  }
+
   function getLipsPosition() {
     return {
       topLip: getlandmark.getTopLipPositions(faceLandMark),
@@ -164,6 +175,9 @@ export default function Face() {
             id="myImg"
             crossOrigin="anonymous"
           />
+        </div>
+        <div>
+          <canvas ref={landmarkRef}></canvas>
         </div>
         <div>
           <canvas ref={outputRef} id="output"></canvas>
