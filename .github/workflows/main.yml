@@ -1,0 +1,60 @@
+name: react buld # Workflow 이름
+
+# actionTEST라는 브랜치에 이벤트 발생시 작동
+on:
+  pull_request: # Event 감지
+    branches:
+      - master # 해당 브랜치에서 push가 일어날때 실행
+  push:
+    branches:
+      - master # 해당 브랜치에서 push가 일어날때 실행
+
+jobs: # Job 설정
+  build: # Job ID로 여러개 만들 수 있다.
+    name: build start # Job 이름
+    runs-on: ubuntu-latest
+
+    # 해당 build에서 사용하는 환경변수 선언
+    env:
+      CI: false # 어찌보면 편법, 기본적으로 true로 사용하기
+
+    # 변수 선언하는 영역으로 matrix를 통해 관리
+
+    steps: # Steps
+      # 특정 브랜치의 정보 가져오기(ex actionTEST로 checkout)
+      - name: checkout source code
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+
+      # node설치 https://github.com/actions/setup-node
+      # + node 캐시
+      - name: use node version $ # 노드 버전 설치
+        uses: actions/setup-node@v4
+        with:
+          node-version: 19.9.0 # 12.13.0->18.17.0를 변수로 저장
+          # setup-node에서 이젠 캐시도 지원 npm, yarn, pnpm(v6.10+)
+          # 캐시는 옵션으로, 작성 안하면 캐시 작동 안함
+          cache: "npm"
+          # 기본적으로 package-lock.json, yarn.lock을 찾지만 만약 따로 관리하는게 있다면 여기서 특정 파일을 지정하는것도 가능
+          # 따로 파일 관리 안하면, 기본 옵션으로 자동으로 잘 찾아준다.
+          cache-dependency-path: package-lock.json
+
+      - name: npm install # 설치
+        run: npm install
+        # 만약 특정 폴더로 이동하고 위의 run을 작동 시키고 싶을때 working-directory를 선언
+        # working-directory: somedir
+
+      - name: npm build # 빌드시작
+        run: npm run build
+
+      # 넘기기
+      - name: rsync market
+        uses: burnett01/rsync-deployments@5.1
+        with:
+          switches: -avzr
+          path: dist/
+          remote_path: /var/www/face/
+          remote_host: ${{secrets.SSH_HOST}}
+          remote_user: ${{secrets.SSH_USERNAME}}
+          remote_key: ${{ secrets.SSH_KEY }}
