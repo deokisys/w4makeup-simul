@@ -14,7 +14,7 @@
   ![화장적용](https://user-images.githubusercontent.com/24247768/197826973-cb3588b2-4750-4027-a9e7-b53e9c4bda55.png)
 
 - 화장 컨트롤러
-  ![화장 컨트롤러](https://user-images.githubusercontent.com/24247768/197827445-fc4af318-35e8-4044-b10c-bf351318016a.png)
+  ![화장 컨트롤러](https://github.com/deokisys/w4makeupFE/assets/24247768/f22516cd-3f7a-4210-9769-f1216650d1d6.png)
 
 - 기울인 얼굴
   ![기울인얼굴](https://user-images.githubusercontent.com/24247768/197828784-ba334aec-fd11-486e-a4f0-50c427231947.png)
