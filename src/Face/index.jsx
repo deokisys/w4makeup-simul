@@ -5,9 +5,31 @@ import getlandmark from "../util/landmark";
 import getBlushPosition from "./makeup/blusher";
 import Controller from "./Controller";
 import styled from "styled-components";
+import initComparisons from "../util/imageCompairon";
+import Layout from "../Layout";
 
 const Wrap = styled.div`
   display: flex;
+  width: 300px;
+`;
+const Facewrap = styled.div`
+  display: flex;
+  height: 400px;
+`;
+const Content = styled.div`
+  width: 300px;
+  height: 400px;
+`;
+
+const Simulator = styled.div`
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 700px;
+`;
+
+const ControllerWrap = styled.div`
+  width: 100px;
 `;
 
 export default function Face() {
@@ -15,6 +37,7 @@ export default function Face() {
   const [blushColor, setBlushColor] = useState("#FF5454");
 
   const [faceLandMark, setFaceLandMark] = useState(undefined);
+  const [compInit, setCompInit] = useState(false);
   const inputRef = useRef(null);
   const outputRef = useRef(null);
   const landmarkRef = useRef(null);
@@ -35,6 +58,10 @@ export default function Face() {
   useEffect(() => {
     if (!faceLandMark) return;
     fullMakeupTmp();
+    if (!compInit) {
+      initComparisons();
+      setCompInit(true);
+    }
   }, [faceLandMark]);
 
   /**
@@ -66,12 +93,16 @@ export default function Face() {
       .detectAllFaces(input, new faceapi.TinyFaceDetectorOptions())
       .withFaceLandmarks();
     const resizeDetections = faceapi.resizeResults(detections, displaySize);
-    landmarkPrint(input, resizeDetections);
+    // landmarkPrint(input, resizeDetections);
     return resizeDetections.length
       ? resizeDetections[0].landmarks.positions
       : false;
   }
 
+  /**
+   * 이미지 입력
+   * @param {*} e
+   */
   async function onChange(e) {
     const inputImg = inputRef.current;
     const imgFile = e.target.files[0];
@@ -79,8 +110,7 @@ export default function Face() {
     // create an HTMLImageElement from a Blob
     const img = await faceapi.bufferToImage(imgFile);
     inputImg.src = img.src;
-    inputImg.width = img.width;
-    inputImg.height = img.height;
+    inputImg.width = 300;
   }
 
   /**
@@ -165,35 +195,49 @@ export default function Face() {
   }
 
   return (
-    <div>
-      <input
-        onChange={onChange}
-        id="myFileUpload"
-        type="file"
-        accept=".jpg, .jpeg, .png"
-      />
-      <Wrap>
-        <div>
-          <img
-            onLoad={imgLoad}
-            ref={inputRef}
-            id="myImg"
-            crossOrigin="anonymous"
-          />
-        </div>
-        <div>
-          <canvas ref={landmarkRef}></canvas>
-        </div>
-        <div>
-          <canvas ref={outputRef} id="output"></canvas>
-        </div>
-      </Wrap>
-      {faceLandMark && (
-        <div>
-          <Controller color={libColor} onChange={libChange} name={"입술"} />
-          <Controller color={blushColor} onChange={blushChange} name={"볼"} />
-        </div>
-      )}
-    </div>
+    <Layout>
+      <Simulator>
+        <input
+          onChange={onChange}
+          id="myFileUpload"
+          type="file"
+          accept=".jpg, .jpeg, .png"
+        />
+        <Facewrap>
+          <Wrap className="img-comp-container">
+            <Content className="img-comp-img">
+              <img
+                onLoad={imgLoad}
+                ref={inputRef}
+                id="myImg"
+                crossOrigin="anonymous"
+              />
+            </Content>
+            <Content className="img-comp-img img-comp-overlay">
+              <canvas ref={outputRef} id="output"></canvas>
+            </Content>
+          </Wrap>
+          <ControllerWrap>
+            {faceLandMark && (
+              <>
+                <Controller
+                  color={libColor}
+                  onChange={libChange}
+                  name={"입술"}
+                />
+                <Controller
+                  color={blushColor}
+                  onChange={blushChange}
+                  name={"볼"}
+                />
+              </>
+            )}
+          </ControllerWrap>
+        </Facewrap>
+        {/* <Content>
+        <canvas ref={landmarkRef}></canvas>
+      </Content> */}
+      </Simulator>
+    </Layout>
   );
 }
