@@ -20,7 +20,7 @@ export default function Layout(props) {
   return (
     <Wrap>
       <Head>
-        <h>화장 시뮬레이터</h>
+        <h1>화장 시뮬레이터</h1>
       </Head>
       <hr />
       <Content>{props.children}</Content>

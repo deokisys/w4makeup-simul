@@ -21,6 +21,17 @@ const Content = styled.div`
   height: 400px;
 `;
 
+const Simulator = styled.div`
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 700px;
+`;
+
+const ControllerWrap = styled.div`
+  width: 100px;
+`;
+
 export default function Face() {
   const [libColor, setLibColor] = useState("#FF5454");
   const [blushColor, setBlushColor] = useState("#FF5454");
@@ -185,7 +196,7 @@ export default function Face() {
 
   return (
     <Layout>
-      <div>
+      <Simulator>
         <input
           onChange={onChange}
           id="myFileUpload"
@@ -206,21 +217,27 @@ export default function Face() {
               <canvas ref={outputRef} id="output"></canvas>
             </Content>
           </Wrap>
-          {faceLandMark && (
-            <div>
-              <Controller color={libColor} onChange={libChange} name={"입술"} />
-              <Controller
-                color={blushColor}
-                onChange={blushChange}
-                name={"볼"}
-              />
-            </div>
-          )}
+          <ControllerWrap>
+            {faceLandMark && (
+              <>
+                <Controller
+                  color={libColor}
+                  onChange={libChange}
+                  name={"입술"}
+                />
+                <Controller
+                  color={blushColor}
+                  onChange={blushChange}
+                  name={"볼"}
+                />
+              </>
+            )}
+          </ControllerWrap>
         </Facewrap>
         {/* <Content>
         <canvas ref={landmarkRef}></canvas>
       </Content> */}
-      </div>
+      </Simulator>
     </Layout>
   );
 }
